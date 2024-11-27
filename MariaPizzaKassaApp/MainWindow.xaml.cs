@@ -12,15 +12,17 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using MariaPizzaKassaApp.classes;
+using MarioPizzaKassaApp.classes;
 
-namespace MariaPizzaKassaApp
+namespace MarioPizzaKassaApp
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+        private Order currentOrder;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -81,7 +83,19 @@ namespace MariaPizzaKassaApp
         private void ShowPizzaDetails(Pizza pizza)
         {
             PizzaDetailsWindow detailsWindow = new PizzaDetailsWindow(pizza);
-            detailsWindow.ShowDialog();
+            if (detailsWindow.ShowDialog() == true)
+            {
+                AddPizzaToOrder(detailsWindow.SelectedPizza);
+            }
+        }
+
+        private void AddPizzaToOrder(Pizza pizza)
+        {
+            if (currentOrder == null)
+            {
+                currentOrder = new Order(1, DateTime.Now, new List<Pizza>());
+            }
+            currentOrder.AddPizza(pizza);
         }
     }
 }

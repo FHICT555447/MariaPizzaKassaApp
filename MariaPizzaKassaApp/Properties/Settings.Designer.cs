@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace MariaPizzaKassaApp.Properties
+namespace MarioPizzaKassaApp.Properties
 {
 
 

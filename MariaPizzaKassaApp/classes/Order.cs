@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MariaPizzaKassaApp.classes
+namespace MarioPizzaKassaApp.classes
 {
     public class Order
     {
@@ -19,6 +19,12 @@ namespace MariaPizzaKassaApp.classes
             _id = id;
             _date = date;
             _pizzas = pizzas;
+        }
+
+        //methods
+        public void AddPizza(Pizza pizza)
+        {
+            _pizzas.Add(pizza);
         }
     }
 }

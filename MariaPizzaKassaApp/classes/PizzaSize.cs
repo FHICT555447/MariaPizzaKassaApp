@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MariaPizzaKassaApp.classes
+namespace MarioPizzaKassaApp.classes
 {
     public class PizzaSize
     {

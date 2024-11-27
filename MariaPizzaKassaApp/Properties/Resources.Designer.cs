@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace MariaPizzaKassaApp.Properties
+namespace MarioPizzaKassaApp.Properties
 {
 
 
@@ -44,7 +44,7 @@ namespace MariaPizzaKassaApp.Properties
             {
                 if ((resourceMan == null))
                 {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MariaPizzaKassaApp.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MarioPizzaKassaApp.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

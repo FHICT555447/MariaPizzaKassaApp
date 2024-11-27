@@ -1,26 +1,14 @@
-﻿using MariaPizzaKassaApp.classes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using MarioPizzaKassaApp.classes;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using System.Windows;
+using System.Linq;
 
-namespace MariaPizzaKassaApp
+namespace MarioPizzaKassaApp
 {
-    /// <summary>
-    /// Interaction logic for PizzaDetailsWindow.xaml
-    /// </summary>
     public partial class PizzaDetailsWindow : Window
     {
         private Pizza _pizza;
+        public Pizza SelectedPizza { get; private set; }
 
         public PizzaDetailsWindow(Pizza pizza)
         {
@@ -35,8 +23,24 @@ namespace MariaPizzaKassaApp
         {
             Button clickedButton = sender as Button;
             string selectedSize = clickedButton.Content.ToString();
-            MessageBox.Show($"Selected Size: {selectedSize} for {_pizza._name}", "Size Selection");
-            // You can add additional logic to handle the size selection
+
+            PizzaSize.Size size = PizzaSize.Size.Small;
+            switch (selectedSize)
+            {
+                case "Small":
+                    size = PizzaSize.Size.Small;
+                    break;
+                case "Medium":
+                    size = PizzaSize.Size.Medium;
+                    break;
+                case "Large":
+                    size = PizzaSize.Size.Large;
+                    break;
+            }
+
+            SelectedPizza = new Pizza(_pizza._name, _pizza._price, _pizza._ingredients, size);
+            this.DialogResult = true;
+            this.Close();
         }
     }
 }
