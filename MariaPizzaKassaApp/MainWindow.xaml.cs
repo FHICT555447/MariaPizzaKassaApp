@@ -96,6 +96,73 @@ namespace MarioPizzaKassaApp
                 currentOrder = new Order(1, DateTime.Now, new List<Pizza>());
             }
             currentOrder.AddPizza(pizza);
+            UpdateOrderDetailsPanel();
+        }
+
+        private void UpdateOrderDetailsPanel()
+        {
+            OrderDetailsPanel.Children.Clear();
+
+            foreach (var pizza in currentOrder._pizzas)
+            {
+                Rectangle pizzaRect = new Rectangle
+                {
+                    //Height = 80,
+                    Margin = new Thickness(2),
+                    Stroke = Brushes.Black,
+                    StrokeThickness = 1,
+                    Fill = Brushes.LightGray
+                };
+
+                StackPanel rectContent = new StackPanel
+                {
+                    Margin = new Thickness(2)
+                };
+
+                TextBlock pizzaName = new TextBlock
+                {
+                    Text = $"Name: {pizza._name}",
+                    FontSize = 20,
+                    Margin = new Thickness(5, 0, 0, 0),
+                    FontWeight = FontWeights.Bold,
+                    //Width = 350,
+                    TextWrapping = TextWrapping.Wrap
+                };
+
+                TextBlock pizzaSize = new TextBlock
+                {
+                    Text = $"Size: {pizza._size}",
+                    Margin = new Thickness(5, 0, 0, 0),
+                    FontSize = 15,
+                    //Width = 350,
+                    TextWrapping = TextWrapping.Wrap
+                };
+
+                TextBlock pizzaPrice = new TextBlock
+                {
+                    Text = $"Price: {pizza._price:C}",
+                    Margin = new Thickness(5, 0, 0, 0),
+                    FontSize = 15,
+                    //Width = 350,
+                    TextWrapping = TextWrapping.Wrap
+                };
+
+                rectContent.Children.Add(pizzaName);
+                rectContent.Children.Add(pizzaSize);
+                rectContent.Children.Add(pizzaPrice);
+
+                Grid grid = new Grid();
+                grid.Children.Add(pizzaRect);
+                grid.Children.Add(rectContent);
+
+                OrderDetailsPanel.Children.Add(grid);
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            OrderDetailsPanel.Children.Clear();
+            currentOrder = null;
         }
     }
 }
