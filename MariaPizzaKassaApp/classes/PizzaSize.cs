@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace MariaPizzaKassaApp.classes
 {
-    internal class Size
+    public class PizzaSize
     {
         //fields
-        public enum PizzaSize
+        public enum Size
         {
             Small = 1,
             Medium = 2,
@@ -17,10 +17,10 @@ namespace MariaPizzaKassaApp.classes
         }
 
         //properties
-        public PizzaSize SizeType { get; private set; }
+        public Size SizeType { get; private set; }
 
         //constructor
-        public Size(PizzaSize size)
+        public PizzaSize(Size size)
         {
             SizeType = size;
         }

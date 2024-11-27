@@ -66,13 +66,20 @@
     <Compile Include="classes\Ingredient.cs" />
     <Compile Include="classes\Order.cs" />
     <Compile Include="classes\Pizza.cs" />
-    <Compile Include="classes\Size.cs" />
+    <Compile Include="classes\PizzaSize.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="PizzaDetailsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PizzaDetailsWindow.xaml.cs">
+      <DependentUpon>PizzaDetailsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

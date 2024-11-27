@@ -1,0 +1,22 @@
+﻿<Window x:Class="MariaPizzaKassaApp.PizzaDetailsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MariaPizzaKassaApp"
+        mc:Ignorable="d"
+        Title="PizzaDetailsWindow" Height="300" Width="400"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <StackPanel>
+            <TextBlock x:Name="PizzaNameTextBlock" FontSize="20" Margin="10"/>
+            <TextBlock x:Name="PizzaPriceTextBlock" FontSize="16" Margin="10"/>
+            <TextBlock x:Name="PizzaIngredientsTextBlock" Margin="10"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+                <Button x:Name="SmallSizeButton" Content="Small" Margin="5" Click="SizeButton_Click"/>
+                <Button x:Name="MediumSizeButton" Content="Medium" Margin="5" Click="SizeButton_Click"/>
+                <Button x:Name="LargeSizeButton" Content="Large" Margin="5" Click="SizeButton_Click"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

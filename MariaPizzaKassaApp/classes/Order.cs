@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MariaPizzaKassaApp.classes
 {
-    internal class Order
+    public class Order
     {
         //fields & properties
         public int _id { get; private set; }
