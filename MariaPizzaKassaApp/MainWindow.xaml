@@ -14,7 +14,7 @@
         <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Height="550" VerticalAlignment="Top">
             <StackPanel Background="#5E5E5E" x:Name="OrderDetailsPanel" Orientation="Vertical"/>
         </ScrollViewer>
-        <Button Grid.Column="1" Background="#D9D9D9" Height="244" VerticalAlignment="Bottom" Click="Button_Click">
+        <Button Grid.Column="1" Background="#D9D9D9" Height="244" VerticalAlignment="Bottom" Click="CompleteOrder">
             <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <TextBlock x:Name="pizzaCount" Text="Pizza Amount: 0" FontSize="22" HorizontalAlignment="Center"/>
                 <TextBlock x:Name="totalAmount" Text="Total: €0,-" Margin="0,20,0,0" FontSize="22" HorizontalAlignment="Center"/>

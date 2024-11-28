@@ -38,7 +38,7 @@ namespace MarioPizzaKassaApp
             List<Pizza> pizzas = new List<Pizza>();
 
             string connectionString = "server=localhost;user=root;database=MarioPizzaTestDB;port=3306;password=";
-            string query = "SELECT p.name, p.price, i.name as ingredient_name, i.purchase_price, i.finishing_ingredient " +
+            string query = "SELECT p.id as pizza_id, p.name, p.price, i.id as ingredient_id, i.name as ingredient_name, i.purchase_price, i.finishing_ingredient " +
                            "FROM pizzas p " +
                            "JOIN pizzas_ingredients pi ON p.id = pi.pizzaID " +
                            "JOIN ingredients i ON pi.ingredientID = i.id " +
@@ -59,6 +59,8 @@ namespace MarioPizzaKassaApp
 
                 while (reader.Read())
                 {
+                    int pizzaID = (int)reader["pizza_id"];
+                    int ingredientID = (int)reader["ingredient_id"];
                     string pizzaName = reader["name"].ToString();
                     decimal pizzaPrice = reader.GetDecimal("price");
                     string ingredientName = reader["ingredient_name"].ToString();
@@ -69,20 +71,18 @@ namespace MarioPizzaKassaApp
 
                     List<Ingredient> ingredients = new List<Ingredient>
             {
-                new Ingredient(ingredientName, ingredientPrice, finishingIngredient)
+                new Ingredient(ingredientID, ingredientName, ingredientPrice, finishingIngredient)
             };
 
                     // Check if the pizza already exists in the list
                     Pizza pizza = pizzas.FirstOrDefault(p => p._name == pizzaName);
                     if (pizza == null)
                     {
-                        // Create a new Pizza object if it doesn't exist
-                        pizza = new Pizza(pizzaName, pizzaPrice, ingredients);
+                        pizza = new Pizza(pizzaID, pizzaName, pizzaPrice, ingredients);
                         pizzas.Add(pizza);
                     }
                     else
                     {
-                        // Add the ingredient to the existing Pizza object
                         pizza._ingredients.AddRange(ingredients);
                     }
                 }
@@ -139,7 +139,6 @@ namespace MarioPizzaKassaApp
 
                 Rectangle pizzaRect = new Rectangle
                 {
-                    //Height = 80,
                     Margin = new Thickness(2),
                     Stroke = Brushes.Black,
                     StrokeThickness = 1,
@@ -157,7 +156,6 @@ namespace MarioPizzaKassaApp
                     FontSize = 20,
                     Margin = new Thickness(5, 0, 0, 0),
                     FontWeight = FontWeights.Bold,
-                    //Width = 350,
                     TextWrapping = TextWrapping.Wrap
                 };
 
@@ -166,7 +164,6 @@ namespace MarioPizzaKassaApp
                     Text = $"Size: {pizza._size}",
                     Margin = new Thickness(5, 0, 0, 0),
                     FontSize = 15,
-                    //Width = 350,
                     TextWrapping = TextWrapping.Wrap
                 };
 
@@ -175,7 +172,6 @@ namespace MarioPizzaKassaApp
                     Text = $"Price: {pizza._price:C}",
                     Margin = new Thickness(5, 0, 0, 0),
                     FontSize = 15,
-                    //Width = 350,
                     TextWrapping = TextWrapping.Wrap
                 };
 
@@ -194,14 +190,55 @@ namespace MarioPizzaKassaApp
             pizzaCount.Text = $"Pizza Amount: {totalPizzaAmount}";
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void CompleteOrder(object sender, RoutedEventArgs e)
         {
-            OrderDetailsPanel.Children.Clear();
-            currentOrder = null;
-            totalPrice = 0;
-            totalAmount.Text = $"Total: €0,-";
-            totalPizzaAmount = 0;
-            pizzaCount.Text = $"Pizza Amount: 0";
+            if (currentOrder == null || !currentOrder._pizzas.Any())
+            {
+                MessageBox.Show("No pizzas in the order to complete.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            string connectionString = "server=localhost;user=root;database=MarioPizzaTestDB;port=3306;password=";
+            string insertOrderQuery = "INSERT INTO orders (total, date) VALUES (@total_price, @order_date)";
+            string insertOrderPizzaQuery = "INSERT INTO orders_pizzas (pizzaID, orderID) VALUES (@pizza_id, @order_id)";
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+                MySqlTransaction transaction = conn.BeginTransaction();
+
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(insertOrderQuery, conn, transaction);
+                    cmd.Parameters.AddWithValue("@total_price", totalPrice);
+                    cmd.Parameters.AddWithValue("@order_date", currentOrder._date);
+                    cmd.ExecuteNonQuery();
+
+                    long orderId = cmd.LastInsertedId;
+
+                    foreach (var pizza in currentOrder._pizzas)
+                    {
+                        MySqlCommand pizzaCmd = new MySqlCommand(insertOrderPizzaQuery, conn, transaction);
+                        pizzaCmd.Parameters.AddWithValue("@order_id", orderId);
+                        pizzaCmd.Parameters.AddWithValue("@pizza_id", pizza._id + pizza._size); //adding size number to pizza id to indicate the correct pizza id in the DB
+                        pizzaCmd.ExecuteNonQuery();
+                    }
+
+                    transaction.Commit();
+                    MessageBox.Show("Order completed successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    OrderDetailsPanel.Children.Clear();
+                    currentOrder = null;
+                    totalPrice = 0;
+                    totalAmount.Text = $"Total: €0,-";
+                    totalPizzaAmount = 0;
+                    pizzaCount.Text = $"Pizza Amount: 0";
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    MessageBox.Show($"An error occurred while completing the order: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
     }
 }

@@ -54,7 +54,7 @@ namespace MarioPizzaKassaApp
                     break;
             }
 
-            SelectedPizza = new Pizza(_pizza._name, _pizza._price, _pizza._ingredients, size);
+            SelectedPizza = new Pizza(_pizza._id, _pizza._name, _pizza._price, _pizza._ingredients, size);
             this.DialogResult = true;
             this.Close();
         }
