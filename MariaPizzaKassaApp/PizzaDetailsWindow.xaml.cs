@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows;
 using System.Linq;
+using System;
 
 namespace MarioPizzaKassaApp
 {
@@ -17,6 +18,18 @@ namespace MarioPizzaKassaApp
             PizzaNameTextBlock.Text = $"Pizza: {pizza._name}";
             PizzaPriceTextBlock.Text = $"Price: {pizza._price:C}";
             PizzaIngredientsTextBlock.Text = $"Ingredients: {string.Join(", ", pizza._ingredients.Select(i => i._name))}";
+
+            foreach (var size in Enum.GetValues(typeof(PizzaSize.Size)))
+            {
+                Button sizeButton = new Button
+                {
+                    Content = size.ToString(),
+                    Width = 60,
+                    Margin = new Thickness(5)
+                };
+                sizeButton.Click += SizeButton_Click;
+                SizeButtonsPanel.Children.Add(sizeButton);
+            }
         }
 
         private void SizeButton_Click(object sender, RoutedEventArgs e)
@@ -35,6 +48,9 @@ namespace MarioPizzaKassaApp
                     break;
                 case "Large":
                     size = PizzaSize.Size.Large;
+                    break;
+                case "ExtraLarge":
+                    size = PizzaSize.Size.ExtraLarge;
                     break;
             }
 

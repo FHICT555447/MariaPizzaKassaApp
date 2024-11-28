@@ -14,10 +14,7 @@
             <TextBlock x:Name="PizzaNameTextBlock" FontSize="20" Margin="10"/>
             <TextBlock x:Name="PizzaPriceTextBlock" FontSize="16" Margin="10"/>
             <TextBlock x:Name="PizzaIngredientsTextBlock" TextWrapping="Wrap" Margin="10"/>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Height="60" Margin="40">
-                <Button x:Name="SmallSizeButton" Content="Small" Margin="5" Width="80" Click="SizeButton_Click"/>
-                <Button x:Name="MediumSizeButton" Content="Medium" Margin="5" Width="80" Click="SizeButton_Click"/>
-                <Button x:Name="LargeSizeButton" Content="Large" Margin="5" Width="80" Click="SizeButton_Click"/>
+            <StackPanel x:Name="SizeButtonsPanel" Orientation="Horizontal" HorizontalAlignment="Center" Height="60" Margin="40">
             </StackPanel>
         </StackPanel>
     </Grid>
