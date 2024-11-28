@@ -3,7 +3,7 @@
 ## Database setup:
 Download the MarioPizzaTestDB.sql included in the github repository,
 
-Start up a localhost service such as Wamp as an example,
+Start up a localhost service such as Wamp for example,
 
 Go to phpmyadmin and create a database called: "mariopizzatestdb" you don't have to create any tables inside the DB,
 
