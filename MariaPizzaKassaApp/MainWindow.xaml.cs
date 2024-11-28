@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MarioPizzaKassaApp.classes;
+using MySql.Data.MySqlClient;
 
 namespace MarioPizzaKassaApp
 {
@@ -22,44 +23,70 @@ namespace MarioPizzaKassaApp
     public partial class MainWindow : Window
     {
         private Order currentOrder;
+        private decimal totalPrice;
+        private int totalPizzaAmount;
 
         public MainWindow()
         {
             InitializeComponent();
-            List<Pizza> pizzas = GenerateDummyData();
+            List<Pizza> pizzas = GetPizzasFromDatabase();
             CreatePizzaButtons(pizzas);
         }
 
-        private List<Pizza> GenerateDummyData()
+        public List<Pizza> GetPizzasFromDatabase()
         {
-            List<Ingredient> ingredients = new List<Ingredient>
+            List<Pizza> pizzas = new List<Pizza>();
+
+            string connectionString = "server=localhost;user=root;database=MarioPizzaTestDB;port=3306;password=";
+            string query = "SELECT p.name, p.price, i.name as ingredient_name, i.purchase_price, i.finishing_ingredient " +
+                           "FROM pizzas p " +
+                           "JOIN pizzas_ingredients pi ON p.id = pi.pizzaID " +
+                           "JOIN ingredients i ON pi.ingredientID = i.id " +
+                           "WHERE p.sizeID = 1";
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
-                new Ingredient("Tomato Sauce", 0.50m, false),
-                new Ingredient("Cheese", 1.00m, false),
-                new Ingredient("Pepperoni", 1.50m, false),
-                new Ingredient("Mushrooms", 0.75m, false),
-                new Ingredient("Onions", 0.50m, false),
-                new Ingredient("Sausage", 1.50m, false),
-                new Ingredient("Bacon", 1.75m, false),
-                new Ingredient("Black Olives", 0.75m, false),
-                new Ingredient("Green Peppers", 0.50m, false),
-                new Ingredient("Pineapple", 1.00m, false),
-                new Ingredient("Spinach", 0.75m, false)
+                conn.Open();
+
+                MySqlCommand cmd = new MySqlCommand(query, conn);
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+                if (!reader.HasRows)
+                {
+                    Console.WriteLine("No rows found.");
+                    return pizzas;
+                }
+
+                while (reader.Read())
+                {
+                    string pizzaName = reader["name"].ToString();
+                    decimal pizzaPrice = reader.GetDecimal("price");
+                    string ingredientName = reader["ingredient_name"].ToString();
+                    decimal ingredientPrice = reader.GetDecimal("purchase_price");
+                    bool finishingIngredient = reader.GetBoolean("finishing_ingredient");
+
+                    Console.WriteLine($"Pizza: {pizzaName}, Price: {pizzaPrice}, Ingredient: {ingredientName}, Ingredient Price: {ingredientPrice}, Finishing: {finishingIngredient}");
+
+                    List<Ingredient> ingredients = new List<Ingredient>
+            {
+                new Ingredient(ingredientName, ingredientPrice, finishingIngredient)
             };
 
-            List<Pizza> pizzas = new List<Pizza>
-            {
-                new Pizza("Margherita", 8.00m, new List<Ingredient> { ingredients[0], ingredients[1] }),
-                new Pizza("Pepperoni", 9.00m, new List<Ingredient> { ingredients[0], ingredients[1], ingredients[2] }),
-                new Pizza("BBQ Chicken", 10.00m, new List<Ingredient> { ingredients[0], ingredients[1], ingredients[5] }),
-                new Pizza("Hawaiian", 9.50m, new List<Ingredient> { ingredients[0], ingredients[1], ingredients[9] }),
-                new Pizza("Veggie", 8.50m, new List<Ingredient> { ingredients[0], ingredients[1], ingredients[3], ingredients[4], ingredients[7], ingredients[8], ingredients[10] }),
-                new Pizza("Meat Lovers", 11.00m, new List<Ingredient> { ingredients[0], ingredients[1], ingredients[2], ingredients[5], ingredients[6] }),
-                new Pizza("Supreme", 12.00m, new List<Ingredient> { ingredients[0], ingredients[1], ingredients[2], ingredients[3], ingredients[4], ingredients[5], ingredients[6], ingredients[7], ingredients[8] }),
-                new Pizza("Buffalo Chicken", 10.50m, new List<Ingredient> { ingredients[0], ingredients[1], ingredients[5] }),
-                new Pizza("Four Cheese", 9.00m, new List<Ingredient> { ingredients[0], ingredients[1] }),
-                new Pizza("Spinach Alfredo", 9.50m, new List<Ingredient> { ingredients[0], ingredients[1], ingredients[10] })
-            };
+                    // Check if the pizza already exists in the list
+                    Pizza pizza = pizzas.FirstOrDefault(p => p._name == pizzaName);
+                    if (pizza == null)
+                    {
+                        // Create a new Pizza object if it doesn't exist
+                        pizza = new Pizza(pizzaName, pizzaPrice, ingredients);
+                        pizzas.Add(pizza);
+                    }
+                    else
+                    {
+                        // Add the ingredient to the existing Pizza object
+                        pizza._ingredients.AddRange(ingredients);
+                    }
+                }
+            }
 
             return pizzas;
         }
@@ -103,8 +130,13 @@ namespace MarioPizzaKassaApp
         {
             OrderDetailsPanel.Children.Clear();
 
+            totalPrice = 0;
+            totalPizzaAmount = currentOrder._pizzas.Count;
+
             foreach (var pizza in currentOrder._pizzas)
             {
+                totalPrice += pizza._price;
+
                 Rectangle pizzaRect = new Rectangle
                 {
                     //Height = 80,
@@ -157,12 +189,19 @@ namespace MarioPizzaKassaApp
 
                 OrderDetailsPanel.Children.Add(grid);
             }
+
+            totalAmount.Text = $"Total: {totalPrice:C}";
+            pizzaCount.Text = $"Pizza Amount: {totalPizzaAmount}";
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             OrderDetailsPanel.Children.Clear();
             currentOrder = null;
+            totalPrice = 0;
+            totalAmount.Text = $"Total: €0,-";
+            totalPizzaAmount = 0;
+            pizzaCount.Text = $"Pizza Amount: 0";
         }
     }
 }
