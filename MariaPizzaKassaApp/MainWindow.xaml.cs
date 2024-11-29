@@ -37,12 +37,19 @@ namespace MarioPizzaKassaApp
         {
             List<Pizza> pizzas = new List<Pizza>();
 
-            string connectionString = "server=localhost;user=root;database=MarioPizzaTestDB;port=3306;password=";
+            string connectionString = "server=192.168.156.8;user=root;database=mario_db;port=3306;password=Y4GFV8cnLr5JMx2s";
             string query = "SELECT p.id as pizza_id, p.name, p.price, i.id as ingredient_id, i.name as ingredient_name, i.purchase_price, i.finishing_ingredient " +
                            "FROM pizzas p " +
                            "JOIN pizzas_ingredients pi ON p.id = pi.pizzaID " +
                            "JOIN ingredients i ON pi.ingredientID = i.id " +
                            "WHERE p.sizeID = 1";
+
+            //string connectionString = "server=localhost;user=root;database=MarioPizzaTestDB;port=3306;password=";
+            //string query = "SELECT p.id as pizza_id, p.name, p.price, i.id as ingredient_id, i.name as ingredient_name, i.purchase_price, i.finishing_ingredient " +
+            //               "FROM pizzas p " +
+            //               "JOIN pizzas_ingredients pi ON p.id = pi.pizzaID " +
+            //               "JOIN ingredients i ON pi.ingredientID = i.id " +
+            //               "WHERE p.sizeID = 1";
 
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
@@ -215,7 +222,7 @@ namespace MarioPizzaKassaApp
                 return;
             }
 
-            string connectionString = "server=localhost;user=root;database=MarioPizzaTestDB;port=3306;password=";
+            string connectionString = "server=192.168.156.8;user=root;database=mario_db;port=3306;password=Y4GFV8cnLr5JMx2s";
             string insertOrderQuery = "INSERT INTO orders (total, date) VALUES (@total_price, @order_date)";
             string insertOrderPizzaQuery = "INSERT INTO orders_pizzas (pizzaID, orderID) VALUES (@pizza_id, @order_id)";
 
