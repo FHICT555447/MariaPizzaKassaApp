@@ -5,9 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MarioPizzaKassaApp"
         mc:Ignorable="d"
-        Title="PizzaDetailsWindow" Height="300" Width="400"
+        Title="PizzaDetailsWindow" Height="300" Width="575"
         MaxHeight="300"
-        MaxWidth="400"
         WindowStartupLocation="CenterScreen">
     <Grid>
         <StackPanel>

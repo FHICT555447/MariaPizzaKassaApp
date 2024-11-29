@@ -135,15 +135,19 @@ namespace MarioPizzaKassaApp
 
             foreach (var pizza in currentOrder._pizzas)
             {
-                totalPrice += pizza._price;
+                totalPrice += pizza._price + (decimal)pizza._size; //adding size to price to indicate the correct price in the DB
 
                 Rectangle pizzaRect = new Rectangle
                 {
                     Margin = new Thickness(2),
                     Stroke = Brushes.Black,
                     StrokeThickness = 1,
-                    Fill = Brushes.LightGray
+                    Fill = Brushes.LightGray,
                 };
+
+                pizzaRect.MouseEnter += (s, e) => pizzaRect.Fill = Brushes.LightBlue;
+                pizzaRect.MouseLeave += (s, e) => pizzaRect.Fill = Brushes.LightGray;
+                pizzaRect.MouseLeftButtonUp += (s, e) => RemovePizza(pizza);
 
                 StackPanel rectContent = new StackPanel
                 {
@@ -169,7 +173,7 @@ namespace MarioPizzaKassaApp
 
                 TextBlock pizzaPrice = new TextBlock
                 {
-                    Text = $"Price: {pizza._price:C}",
+                    Text = $"Price: {pizza._price + (decimal)pizza._size:C}",
                     Margin = new Thickness(5, 0, 0, 0),
                     FontSize = 15,
                     TextWrapping = TextWrapping.Wrap
@@ -178,6 +182,10 @@ namespace MarioPizzaKassaApp
                 rectContent.Children.Add(pizzaName);
                 rectContent.Children.Add(pizzaSize);
                 rectContent.Children.Add(pizzaPrice);
+
+                rectContent.MouseEnter += (s, e) => pizzaRect.Fill = Brushes.LightBlue;
+                rectContent.MouseLeave += (s, e) => pizzaRect.Fill = Brushes.LightGray;
+                rectContent.MouseLeftButtonUp += (s, e) => RemovePizza(pizza);
 
                 Grid grid = new Grid();
                 grid.Children.Add(pizzaRect);
@@ -188,6 +196,15 @@ namespace MarioPizzaKassaApp
 
             totalAmount.Text = $"Total: {totalPrice:C}";
             pizzaCount.Text = $"Pizza Amount: {totalPizzaAmount}";
+        }
+
+        private void RemovePizza(Pizza pizza)
+        {
+            if (currentOrder != null)
+            {
+                currentOrder._pizzas.Remove(pizza);
+                UpdateOrderDetailsPanel();
+            }
         }
 
         private void CompleteOrder(object sender, RoutedEventArgs e)
