@@ -1,30 +1,36 @@
-﻿using System;
+﻿using MarioPizzaKassaApp.classes;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System;
 
-namespace MarioPizzaKassaApp.classes
+public class Order
 {
-    public class Order
+    public DateTime OrderDate { get; private set; }
+    public List<Pizza> Pizzas { get; private set; }
+    public Dictionary<Pizza, List<Ingredient>> AddedIngredients { get; private set; }
+    public Dictionary<Pizza, List<Ingredient>> RemovedIngredients { get; private set; }
+
+    public Order(DateTime orderDate, List<Pizza> pizzas)
     {
-        //fields & properties
-        public int _id { get; private set; }
-        public DateTime _date { get; private set; }
-        public List<Pizza> _pizzas { get; private set; }
+        OrderDate = orderDate;
+        Pizzas = pizzas;
+        AddedIngredients = new Dictionary<Pizza, List<Ingredient>>();
+        RemovedIngredients = new Dictionary<Pizza, List<Ingredient>>();
+    }
 
-        //constructor
-        public Order(int id, DateTime date, List<Pizza> pizzas)
-        {
-            _id = id;
-            _date = date;
-            _pizzas = pizzas;
-        }
+    public void AddPizza(Pizza pizza, List<Ingredient> addedIngredients, List<Ingredient> removedIngredients)
+    {
+        Pizzas.Add(pizza);
+        AddedIngredients[pizza] = addedIngredients;
+        RemovedIngredients[pizza] = removedIngredients;
+    }
 
-        //methods
-        public void AddPizza(Pizza pizza)
+    public void RemovePizza(Pizza pizza)
+    {
+        if (Pizzas.Contains(pizza))
         {
-            _pizzas.Add(pizza);
+            Pizzas.Remove(pizza);
+            AddedIngredients.Remove(pizza);
+            RemovedIngredients.Remove(pizza);
         }
     }
 }

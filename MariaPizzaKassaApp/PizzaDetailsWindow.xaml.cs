@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows;
 using System.Linq;
 using System;
+using System.Collections.Generic;
 
 namespace MarioPizzaKassaApp
 {
@@ -11,15 +12,35 @@ namespace MarioPizzaKassaApp
         private Pizza _pizza;
         public Pizza SelectedPizza;
         private PizzaSize.Size selectedSize;
+        private IReadOnlyList<Ingredient> _allIngredients;
 
-        public PizzaDetailsWindow(Pizza pizza)
+        public List<Ingredient> AddedIngredients { get; private set; } = new List<Ingredient>();
+        public List<Ingredient> RemovedIngredients { get; private set; } = new List<Ingredient>();
+
+        public PizzaDetailsWindow(Pizza pizza, IReadOnlyList<Ingredient> allIngredients)
         {
             InitializeComponent();
             _pizza = pizza;
             selectedSize = PizzaSize.Size.Small;
-            PizzaNameTextBlock.Text = $"Pizza: {pizza._name}";
-            PizzaPriceTextBlock.Text = $"Price: {pizza._price:C}";
-            PizzaIngredientsTextBlock.Text = $"Ingredients: {string.Join(", ", pizza._ingredients.Select(i => i._name))}";
+            _allIngredients = allIngredients;
+
+            PizzaNameTextBlock.Text = $"Pizza: {pizza.Name}";
+            PizzaPriceTextBlock.Text = $"Price: {pizza.Price:C}";
+
+            foreach (var ingredient in _allIngredients)
+            {
+                CheckBox ingredientCheckBox = new CheckBox
+                {
+                    Width = 100,
+                    Content = ingredient.Name,
+                    Margin = new Thickness(5),
+                    IsChecked = _pizza.Ingredients.Any(pizzaIngredient => pizzaIngredient.ID == ingredient.ID),
+                    Tag = ingredient,
+                };
+                ingredientCheckBox.Checked += IngredientCheckBox_Checked;
+                ingredientCheckBox.Unchecked += IngredientCheckBox_Unchecked;
+                PizzaIngredientsPanel.Children.Add(ingredientCheckBox);
+            }
 
             foreach (var size in Enum.GetValues(typeof(PizzaSize.Size)))
             {
@@ -43,10 +64,48 @@ namespace MarioPizzaKassaApp
                 {
                     Content = sizeText + additionalCostText,
                     Width = 105,
+                    Height = 30,
                     Margin = new Thickness(5)
                 };
                 sizeButton.Click += SizeButton_Click;
                 SizeButtonsPanel.Children.Add(sizeButton);
+            }
+        }
+
+        private void IngredientCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            CheckBox checkBox = sender as CheckBox;
+            Ingredient ingredient = checkBox.Tag as Ingredient;
+
+            // Check if the ingredient is part of the pizza
+            if (_pizza.Ingredients.Contains(ingredient))
+            {
+                // If the ingredient is already part of the pizza, it should not be added to AddedIngredients
+                RemovedIngredients.Remove(ingredient); // In case it was previously marked for removal
+            }
+            else
+            {
+                AddedIngredients.Add(ingredient);
+            }
+        }
+
+        private void IngredientCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            CheckBox checkBox = sender as CheckBox;
+            Ingredient ingredient = checkBox.Tag as Ingredient;
+
+            Console.WriteLine(_pizza.Ingredients);
+            Console.WriteLine(ingredient);
+
+            // Check if the ingredient is part of the pizza
+            if (_pizza.Ingredients.Contains(ingredient))
+            {
+                RemovedIngredients.Add(ingredient);
+            }
+            else
+            {
+                // If the ingredient is not part of the pizza, it should not be added to RemovedIngredients
+                AddedIngredients.Remove(ingredient); // In case it was previously marked for addition
             }
         }
 
@@ -72,9 +131,21 @@ namespace MarioPizzaKassaApp
                     break;
             }
 
-            selectedSize = size; // Update the selected size
+            selectedSize = size;
 
-            SelectedPizza = new Pizza(_pizza._id, _pizza._name, _pizza._price, _pizza._ingredients, size);
+            List<Ingredient> selectedIngredients = new List<Ingredient>();
+            foreach (var child in PizzaIngredientsPanel.Children)
+            {
+                if (child is CheckBox checkBox && checkBox.IsChecked == true)
+                {
+                    if (checkBox.Tag is Ingredient ingredient)
+                    {
+                        selectedIngredients.Add(ingredient);
+                    }
+                }
+            }
+
+            SelectedPizza = new Pizza(_pizza.ID, _pizza.Name, _pizza.Price, selectedIngredients, size);
             this.DialogResult = true;
             this.Close();
         }
