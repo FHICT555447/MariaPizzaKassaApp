@@ -206,11 +206,11 @@ namespace MarioPizzaKassaApp
             SaveModificationsToDatabase(currentOrder);
 
             OrderDetailsPanel.Children.Clear();
+            currentOrder = null;
             totalPrice = 0;
             totalAmount.Text = $"Total: €0,-";
             totalPizzaAmount = 0;
             pizzaCount.Text = $"Pizza Amount: 0";
-            UpdateOrderDetailsPanel();
         }
 
         private void SaveOrderToDatabase(Order order)
@@ -260,6 +260,19 @@ namespace MarioPizzaKassaApp
             {
                 conn.Open();
 
+                // Get the last inserted order_pizzaID from the orders_pizzas table
+                string lastInsertedIDQuery = "SELECT LAST_INSERT_ID()";
+                int lastInsertedOrderPizzaID = 0;
+
+                using (MySqlCommand cmd = new MySqlCommand(lastInsertedIDQuery, conn))
+                {
+                    object result = cmd.ExecuteScalar();
+                    if (result != null && int.TryParse(result.ToString(), out lastInsertedOrderPizzaID))
+                    {
+                        Console.WriteLine($"Last inserted OrderPizzaID: {lastInsertedOrderPizzaID}");
+                    }
+                }
+
                 foreach (var pizza in order.Pizzas)
                 {
                     if (order.AddedIngredients != null && order.AddedIngredients.ContainsKey(pizza) && order.AddedIngredients[pizza] != null && order.AddedIngredients[pizza].Count > 0)
@@ -269,9 +282,8 @@ namespace MarioPizzaKassaApp
                             string query = "INSERT INTO orders_pizza_customizations (order_pizzaID, ingredientID, modification_type) VALUES (@orderPizzaID, @ingredientID, @modificationType)";
                             using (MySqlCommand cmd = new MySqlCommand(query, conn))
                             {
-                                Console.WriteLine(pizza.ID + pizza.Size);
-                                Console.WriteLine(ingredient.ID);
-                                cmd.Parameters.AddWithValue("@orderPizzaID", pizza.ID + pizza.Size);
+                                // Use the last inserted order_pizzaID for the current pizza
+                                cmd.Parameters.AddWithValue("@orderPizzaID", lastInsertedOrderPizzaID);
                                 cmd.Parameters.AddWithValue("@ingredientID", ingredient.ID);
                                 cmd.Parameters.AddWithValue("@modificationType", 1); // 1 for addition
                                 cmd.ExecuteNonQuery();
@@ -286,7 +298,8 @@ namespace MarioPizzaKassaApp
                             string query = "INSERT INTO orders_pizza_customizations (order_pizzaID, ingredientID, modification_type) VALUES (@orderPizzaID, @ingredientID, @modificationType)";
                             using (MySqlCommand cmd = new MySqlCommand(query, conn))
                             {
-                                cmd.Parameters.AddWithValue("@orderPizzaID", pizza.ID + pizza.Size);
+                                // Use the last inserted order_pizzaID for the current pizza
+                                cmd.Parameters.AddWithValue("@orderPizzaID", lastInsertedOrderPizzaID);
                                 cmd.Parameters.AddWithValue("@ingredientID", ingredient.ID);
                                 cmd.Parameters.AddWithValue("@modificationType", 0); // 0 for removal
                                 cmd.ExecuteNonQuery();
@@ -296,6 +309,5 @@ namespace MarioPizzaKassaApp
                 }
             }
         }
-
     }
 }
