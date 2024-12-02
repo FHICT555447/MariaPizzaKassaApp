@@ -9,29 +9,29 @@ namespace MarioPizzaKassaApp.classes
     public class Pizza
     {
         //fields & properties
-        public int _id { get; private set; }
-        public string _name { get; private set; }
-        public decimal _price { get; private set; }
-        public List<Ingredient> _ingredients { get; private set; }
-        public PizzaSize.Size _size { get; private set; }
+        public int ID { get; private set; }
+        public string Name { get; private set; }
+        public decimal Price { get; private set; }
+        public List<Ingredient> Ingredients { get; private set; }
+        public PizzaSize.Size Size { get; private set; }
 
         //constructor without size
         public Pizza(int id, string name, decimal price, List<Ingredient> ingredients)
         {
-            _id = id;
-            _name = name;
-            _price = price;
-            _ingredients = ingredients;
+            ID = id;
+            Name = name;
+            Price = price;
+            Ingredients = ingredients;
         }
 
         //constructor with size
         public Pizza(int id, string name, decimal price, List<Ingredient> ingredients, PizzaSize.Size size)
         {
-            _id = id;
-            _name = name;
-            _price = price;
-            _ingredients = ingredients;
-            _size = size;
+            ID = id;
+            Name = name;
+            Price = price;
+            Ingredients = ingredients;
+            Size = size;
         }
     }
 }
