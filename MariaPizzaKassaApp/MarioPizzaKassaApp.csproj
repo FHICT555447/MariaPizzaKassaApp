@@ -151,6 +151,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="classes\Customer.cs" />
     <Compile Include="classes\Ingredient.cs" />
     <Compile Include="classes\Order.cs" />
     <Compile Include="classes\Pizza.cs" />

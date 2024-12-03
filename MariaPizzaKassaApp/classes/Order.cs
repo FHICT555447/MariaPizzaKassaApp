@@ -1,6 +1,7 @@
 ﻿using MarioPizzaKassaApp.classes;
 using System.Collections.Generic;
 using System;
+using MariaPizzaKassaApp.classes;
 
 public class Order
 {
@@ -8,6 +9,7 @@ public class Order
     public List<Pizza> Pizzas { get; private set; }
     public Dictionary<Pizza, List<Ingredient>> AddedIngredients { get; private set; }
     public Dictionary<Pizza, List<Ingredient>> RemovedIngredients { get; private set; }
+    public Customer OrderCustomer { get; private set; }
 
     public Order(DateTime orderDate, List<Pizza> pizzas)
     {
@@ -31,6 +33,22 @@ public class Order
             Pizzas.Remove(pizza);
             AddedIngredients.Remove(pizza);
             RemovedIngredients.Remove(pizza);
+        }
+    }
+
+    public void AddCustomer(Customer customer)
+    {
+        if (OrderCustomer == null)
+        {
+            OrderCustomer = customer;
+        }
+    }
+
+    public void RemoveCustomer(Customer customer)
+    {
+        if (OrderCustomer == customer)
+        {
+            OrderCustomer = null;
         }
     }
 }
