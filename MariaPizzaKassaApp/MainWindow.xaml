@@ -5,13 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MarioPizzaKassaApp"
         mc:Ignorable="d"
-        Title="MainWindow" Height="1080" Width="1920" WindowState="Maximized">
+        Title="MainWindow" Height="1080" Width="1920" WindowState="Maximized" WindowStyle="None">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="0.2*" />
         </Grid.ColumnDefinitions>
-        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Height="550" VerticalAlignment="Top">
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Height="620" VerticalAlignment="Top">
             <StackPanel Background="#5E5E5E" x:Name="OrderDetailsPanel" Orientation="Vertical"/>
         </ScrollViewer>
         <Button Grid.Column="1" Background="#D9D9D9" Height="244" VerticalAlignment="Bottom" Click="CompleteOrder">
