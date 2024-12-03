@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MarioPizzaKassaApp.classes;
+using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 
 namespace MarioPizzaKassaApp
@@ -33,12 +35,22 @@ namespace MarioPizzaKassaApp
             CreatePizzaButtons(pizzas);
         }
 
+        private IConfigurationRoot LoadConfiguration()
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            return builder.Build();
+        }
+
         public List<Pizza> GetPizzasFromDatabase()
         {
             List<Pizza> pizzas = new List<Pizza>();
             Dictionary<int, Pizza> pizzaDictionary = new Dictionary<int, Pizza>();
 
-            string connectionString = "server=192.168.156.8;user=root;database=mario_db;port=3306;password=Y4GFV8cnLr5JMx2s";
+            IConfigurationRoot configuration = LoadConfiguration();
+            string connectionString = configuration.GetConnectionString("DefaultConnection");
+
             string query = "SELECT p.id as pizza_id, p.name, p.price, i.id as ingredient_id, i.name as ingredient_name, i.purchase_price, i.finishing_ingredient " +
                            "FROM pizzas p " +
                            "JOIN pizzas_ingredients pi ON p.id = pi.pizzaID " +
@@ -96,7 +108,10 @@ namespace MarioPizzaKassaApp
 
         private void ShowPizzaDetails(Pizza pizza)
         {
-            List<Ingredient> allIngredients = Ingredient.GetAllIngredients();
+            IConfigurationRoot configuration = LoadConfiguration();
+            string connectionString = configuration.GetConnectionString("DefaultConnection");
+
+            List<Ingredient> allIngredients = Ingredient.GetAllIngredients(connectionString);
             PizzaDetailsWindow detailsWindow = new PizzaDetailsWindow(pizza, allIngredients);
             if (detailsWindow.ShowDialog() == true)
             {
@@ -169,9 +184,55 @@ namespace MarioPizzaKassaApp
                     TextWrapping = TextWrapping.Wrap
                 };
 
+                TextBlock pizzaModification = new TextBlock
+                {
+                    Text = "Modifications:",
+                    Margin = new Thickness(5, 0, 0, 0),
+                    FontSize = 15,
+                    FontWeight = FontWeights.Bold,
+                    TextWrapping = TextWrapping.Wrap
+                };
+
+                // Create a string for modifications
+                StringBuilder modifications = new StringBuilder();
+
+                // Check for added ingredients
+                if (currentOrder.AddedIngredients != null && currentOrder.AddedIngredients.ContainsKey(pizza))
+                {
+                    foreach (var ingredient in currentOrder.AddedIngredients[pizza])
+                    {
+                        modifications.Append($"{ingredient.Name} +, ");
+                    }
+                }
+
+                // Check for removed ingredients
+                if (currentOrder.RemovedIngredients != null && currentOrder.RemovedIngredients.ContainsKey(pizza))
+                {
+                    foreach (var ingredient in currentOrder.RemovedIngredients[pizza])
+                    {
+                        modifications.Append($"{ingredient.Name} -, ");
+                    }
+                }
+
+                // Remove trailing comma and space if there are modifications
+                if (modifications.Length > 0)
+                {
+                    modifications.Length -= 2;
+                }
+
+                TextBlock modificationDetails = new TextBlock
+                {
+                    Text = modifications.ToString(),
+                    Margin = new Thickness(10, 0, 0, 0),
+                    FontSize = 15,
+                    TextWrapping = TextWrapping.Wrap
+                };
+
                 rectContent.Children.Add(pizzaName);
                 rectContent.Children.Add(pizzaSize);
                 rectContent.Children.Add(pizzaPrice);
+                rectContent.Children.Add(pizzaModification);
+                rectContent.Children.Add(modificationDetails);
 
                 rectContent.MouseEnter += (s, e) => pizzaRect.Fill = Brushes.LightBlue;
                 rectContent.MouseLeave += (s, e) => pizzaRect.Fill = Brushes.LightGray;
@@ -215,7 +276,9 @@ namespace MarioPizzaKassaApp
 
         private void SaveOrderToDatabase(Order order)
         {
-            string connectionString = "server=192.168.156.8;user=root;database=mario_db;port=3306;password=Y4GFV8cnLr5JMx2s";
+            IConfigurationRoot configuration = LoadConfiguration();
+            string connectionString = configuration.GetConnectionString("DefaultConnection");
+
             string insertOrderQuery = "INSERT INTO orders (total, date) VALUES (@total_price, @order_date)";
             string insertOrderPizzaQuery = "INSERT INTO orders_pizzas (pizzaID, orderID) VALUES (@pizza_id, @order_id)";
 
@@ -254,7 +317,8 @@ namespace MarioPizzaKassaApp
 
         private void SaveModificationsToDatabase(Order order)
         {
-            string connectionString = "server=192.168.156.8;user=root;database=mario_db;port=3306;password=Y4GFV8cnLr5JMx2s";
+            IConfigurationRoot configuration = LoadConfiguration();
+            string connectionString = configuration.GetConnectionString("DefaultConnection");
 
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
