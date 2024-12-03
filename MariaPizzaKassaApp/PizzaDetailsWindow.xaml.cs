@@ -108,7 +108,7 @@ namespace MarioPizzaKassaApp
         private void SizeButton_Click(object sender, RoutedEventArgs e)
         {
             Button clickedButton = sender as Button;
-            string selectedSizeText = clickedButton.Content.ToString().Split(' ')[0]; // Get the size text before the additional cost
+            string selectedSizeText = clickedButton.Content.ToString().Split(' ')[0]; // Get the size text
 
             PizzaSize.Size size = PizzaSize.Size.Small; // Default to Small
             switch (selectedSizeText)

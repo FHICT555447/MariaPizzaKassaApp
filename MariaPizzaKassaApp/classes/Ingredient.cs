@@ -1,6 +1,8 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.Extensions.Configuration;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,11 +27,17 @@ namespace MarioPizzaKassaApp.classes
         }
 
         //methods
-        public static List<Ingredient> GetAllIngredients()
-        {
-            List<Ingredient> ingredients = new List<Ingredient>();
+        //private static IConfigurationRoot LoadConfiguration()
+        //{
+        //    var builder = new ConfigurationBuilder()
+        //        .SetBasePath(Directory.GetCurrentDirectory())
+        //        .AddJsonFile("../appsettings.json", optional: false, reloadOnChange: true);
+        //    return builder.Build();
+        //}
 
-            string connectionString = "server=192.168.156.8;user=root;database=mario_db;port=3306;password=Y4GFV8cnLr5JMx2s";
+        public static List<Ingredient> GetAllIngredients(string connectionString)
+        {
+            List<Ingredient> ingredients = new List<Ingredient>();            
             string query = "SELECT id, name, purchase_price, finishing_ingredient FROM ingredients";
 
             using (MySqlConnection conn = new MySqlConnection(connectionString))
