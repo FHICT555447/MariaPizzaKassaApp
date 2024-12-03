@@ -169,9 +169,55 @@ namespace MarioPizzaKassaApp
                     TextWrapping = TextWrapping.Wrap
                 };
 
+                TextBlock pizzaModification = new TextBlock
+                {
+                    Text = "Modifications:",
+                    Margin = new Thickness(5, 0, 0, 0),
+                    FontSize = 15,
+                    FontWeight = FontWeights.Bold,
+                    TextWrapping = TextWrapping.Wrap
+                };
+
+                // Create a string for modifications
+                StringBuilder modifications = new StringBuilder();
+
+                // Check for added ingredients
+                if (currentOrder.AddedIngredients != null && currentOrder.AddedIngredients.ContainsKey(pizza))
+                {
+                    foreach (var ingredient in currentOrder.AddedIngredients[pizza])
+                    {
+                        modifications.Append($"{ingredient.Name} +, ");
+                    }
+                }
+
+                // Check for removed ingredients
+                if (currentOrder.RemovedIngredients != null && currentOrder.RemovedIngredients.ContainsKey(pizza))
+                {
+                    foreach (var ingredient in currentOrder.RemovedIngredients[pizza])
+                    {
+                        modifications.Append($"{ingredient.Name} -, ");
+                    }
+                }
+
+                // Remove trailing comma and space if there are modifications
+                if (modifications.Length > 0)
+                {
+                    modifications.Length -= 2;
+                }
+
+                TextBlock modificationDetails = new TextBlock
+                {
+                    Text = modifications.ToString(),
+                    Margin = new Thickness(10, 0, 0, 0),
+                    FontSize = 15,
+                    TextWrapping = TextWrapping.Wrap
+                };
+
                 rectContent.Children.Add(pizzaName);
                 rectContent.Children.Add(pizzaSize);
                 rectContent.Children.Add(pizzaPrice);
+                rectContent.Children.Add(pizzaModification);
+                rectContent.Children.Add(modificationDetails);
 
                 rectContent.MouseEnter += (s, e) => pizzaRect.Fill = Brushes.LightBlue;
                 rectContent.MouseLeave += (s, e) => pizzaRect.Fill = Brushes.LightGray;

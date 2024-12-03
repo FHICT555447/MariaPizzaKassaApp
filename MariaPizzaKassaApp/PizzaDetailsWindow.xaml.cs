@@ -45,25 +45,21 @@ namespace MarioPizzaKassaApp
             foreach (var size in Enum.GetValues(typeof(PizzaSize.Size)))
             {
                 string sizeText = size.ToString();
-                string additionalCostText = "";
 
                 switch (size)
                 {
                     case PizzaSize.Size.Medium:
-                        additionalCostText = " + €1,-";
                         break;
                     case PizzaSize.Size.Large:
-                        additionalCostText = " + €2,-";
                         break;
                     case PizzaSize.Size.ExtraLarge:
-                        additionalCostText = " + €3,-";
                         break;
                 }
 
                 Button sizeButton = new Button
                 {
-                    Content = sizeText + additionalCostText,
-                    Width = 105,
+                    Content = sizeText,
+                    Width = 90,
                     Height = 30,
                     Margin = new Thickness(5)
                 };
