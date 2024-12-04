@@ -5,16 +5,14 @@ using MariaPizzaKassaApp.classes;
 
 public class Order
 {
-    public DateTime OrderDate { get; private set; }
     private List<Pizza> Pizzas { get; set; }
     public Dictionary<Pizza, List<Ingredient>> AddedIngredients { get; private set; }
     public Dictionary<Pizza, List<Ingredient>> RemovedIngredients { get; private set; }
     public Customer OrderCustomer { get; private set; }
 
-    public Order(DateTime orderDate, List<Pizza> pizzas)
+    public Order()
     {
-        OrderDate = orderDate;
-        Pizzas = pizzas;
+        Pizzas = new List<Pizza>();
         AddedIngredients = new Dictionary<Pizza, List<Ingredient>>();
         RemovedIngredients = new Dictionary<Pizza, List<Ingredient>>();
     }

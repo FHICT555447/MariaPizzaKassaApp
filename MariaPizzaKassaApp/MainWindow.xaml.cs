@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using MariaPizzaKassaApp.classes;
 using MarioPizzaKassaApp.classes;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
@@ -25,10 +26,12 @@ namespace MarioPizzaKassaApp
     public partial class MainWindow : Window
     {
         private Order currentOrder;
+        private OrderStorage orderStorage;
         private int totalPizzaAmount;
 
         public MainWindow()
         {
+            orderStorage = new OrderStorage();
             InitializeComponent();
             List<Pizza> pizzas = GetPizzasFromDatabase();
             CreatePizzaButtons(pizzas);
@@ -123,7 +126,7 @@ namespace MarioPizzaKassaApp
         {
             if (currentOrder == null)
             {
-                currentOrder = new Order(DateTime.Now, new List<Pizza>());
+                currentOrder = new Order();
             }
 
             currentOrder.AddPizza(pizza, addedIngredients, removedIngredients);
@@ -267,114 +270,16 @@ namespace MarioPizzaKassaApp
                 return;
             }
 
-            SaveOrderToDatabase(currentOrder);
-            SaveModificationsToDatabase(currentOrder);
+            if(orderStorage.SaveOrderToDatabase(currentOrder) && orderStorage.SaveModificationsToDatabase(currentOrder))
+            {
+                MessageBox.Show("Order completed successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
 
             OrderDetailsPanel.Children.Clear();
             currentOrder = null;
             totalAmount.Text = $"Total: €0,-";
             totalPizzaAmount = 0;
             pizzaCount.Text = $"Pizza Amount: 0";
-        }
-
-        private void SaveOrderToDatabase(Order order)
-        {
-            IConfigurationRoot configuration = LoadConfiguration();
-            string connectionString = configuration.GetConnectionString("DefaultConnection");
-
-            string insertOrderQuery = "INSERT INTO orders (total, date) VALUES (@total_price, @order_date)";
-            string insertOrderPizzaQuery = "INSERT INTO orders_pizzas (pizzaID, orderID) VALUES (@pizza_id, @order_id)";
-
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
-                conn.Open();
-                MySqlTransaction transaction = conn.BeginTransaction();
-
-                try
-                {
-                    MySqlCommand cmd = new MySqlCommand(insertOrderQuery, conn, transaction);
-                    cmd.Parameters.AddWithValue("@total_price", currentOrder.GetTotalPrice());
-                    cmd.Parameters.AddWithValue("@order_date", currentOrder.OrderDate);
-                    cmd.ExecuteNonQuery();
-
-                    long orderId = cmd.LastInsertedId;
-
-                    foreach (var pizza in currentOrder.GetPizzas())
-                    {
-                        MySqlCommand pizzaCmd = new MySqlCommand(insertOrderPizzaQuery, conn, transaction);
-                        pizzaCmd.Parameters.AddWithValue("@order_id", orderId);
-                        pizzaCmd.Parameters.AddWithValue("@pizza_id", pizza.ID + pizza.Size); //adding size number to pizza id to indicate the correct pizza id in the DB
-                        pizzaCmd.ExecuteNonQuery();
-                    }
-
-                    transaction.Commit();
-                    MessageBox.Show("Order completed successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    MessageBox.Show($"An error occurred while completing the order: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private void SaveModificationsToDatabase(Order order)
-        {
-            IConfigurationRoot configuration = LoadConfiguration();
-            string connectionString = configuration.GetConnectionString("DefaultConnection");
-
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
-            {
-                conn.Open();
-
-                // Get the last inserted order_pizzaID from the orders_pizzas table
-                string lastInsertedIDQuery = "SELECT LAST_INSERT_ID()";
-                int lastInsertedOrderPizzaID = 0;
-
-                using (MySqlCommand cmd = new MySqlCommand(lastInsertedIDQuery, conn))
-                {
-                    object result = cmd.ExecuteScalar();
-                    if (result != null && int.TryParse(result.ToString(), out lastInsertedOrderPizzaID))
-                    {
-                        Console.WriteLine($"Last inserted OrderPizzaID: {lastInsertedOrderPizzaID}");
-                    }
-                }
-
-                foreach (var pizza in order.GetPizzas())
-                {
-                    if (order.AddedIngredients != null && order.AddedIngredients.ContainsKey(pizza) && order.AddedIngredients[pizza] != null && order.AddedIngredients[pizza].Count > 0)
-                    {
-                        foreach (var ingredient in order.AddedIngredients[pizza])
-                        {
-                            string query = "INSERT INTO orders_pizza_customizations (order_pizzaID, ingredientID, modification_type) VALUES (@orderPizzaID, @ingredientID, @modificationType)";
-                            using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                            {
-                                // Use the last inserted order_pizzaID for the current pizza
-                                cmd.Parameters.AddWithValue("@orderPizzaID", lastInsertedOrderPizzaID);
-                                cmd.Parameters.AddWithValue("@ingredientID", ingredient.ID);
-                                cmd.Parameters.AddWithValue("@modificationType", 1); // 1 for addition
-                                cmd.ExecuteNonQuery();
-                            }
-                        }
-                    }
-
-                    if (order.RemovedIngredients != null && order.RemovedIngredients.ContainsKey(pizza) && order.RemovedIngredients[pizza] != null && order.RemovedIngredients[pizza].Count > 0)
-                    {
-                        foreach (var ingredient in order.RemovedIngredients[pizza])
-                        {
-                            string query = "INSERT INTO orders_pizza_customizations (order_pizzaID, ingredientID, modification_type) VALUES (@orderPizzaID, @ingredientID, @modificationType)";
-                            using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                            {
-                                // Use the last inserted order_pizzaID for the current pizza
-                                cmd.Parameters.AddWithValue("@orderPizzaID", lastInsertedOrderPizzaID);
-                                cmd.Parameters.AddWithValue("@ingredientID", ingredient.ID);
-                                cmd.Parameters.AddWithValue("@modificationType", 0); // 0 for removal
-                                cmd.ExecuteNonQuery();
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }
