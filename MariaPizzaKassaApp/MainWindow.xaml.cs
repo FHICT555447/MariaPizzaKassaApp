@@ -82,7 +82,7 @@ namespace MarioPizzaKassaApp
                         pizzas.Add(pizza);
                     }
 
-                    pizza.Ingredients.Add(ingredient);
+                    pizza.AddIngredient(ingredient);
                 }
             }
 
@@ -134,9 +134,9 @@ namespace MarioPizzaKassaApp
         {
             OrderDetailsPanel.Children.Clear();
 
-            totalPizzaAmount = currentOrder.Pizzas.Count;
+            totalPizzaAmount = currentOrder.GetPizzas().Count;
 
-            foreach (var pizza in currentOrder.Pizzas)
+            foreach (var pizza in currentOrder.GetPizzas())
             {
                 Rectangle pizzaRect = new Rectangle
                 {
@@ -251,7 +251,7 @@ namespace MarioPizzaKassaApp
             {
                 currentOrder.RemovePizza(pizza);
                 UpdateOrderDetailsPanel();
-                if(currentOrder.Pizzas.Count == 0)
+                if(currentOrder.GetPizzas().Count == 0)
                 {
                     currentOrder = null;
                 }
@@ -299,7 +299,7 @@ namespace MarioPizzaKassaApp
 
                     long orderId = cmd.LastInsertedId;
 
-                    foreach (var pizza in currentOrder.Pizzas)
+                    foreach (var pizza in currentOrder.GetPizzas())
                     {
                         MySqlCommand pizzaCmd = new MySqlCommand(insertOrderPizzaQuery, conn, transaction);
                         pizzaCmd.Parameters.AddWithValue("@order_id", orderId);
@@ -340,7 +340,7 @@ namespace MarioPizzaKassaApp
                     }
                 }
 
-                foreach (var pizza in order.Pizzas)
+                foreach (var pizza in order.GetPizzas())
                 {
                     if (order.AddedIngredients != null && order.AddedIngredients.ContainsKey(pizza) && order.AddedIngredients[pizza] != null && order.AddedIngredients[pizza].Count > 0)
                     {

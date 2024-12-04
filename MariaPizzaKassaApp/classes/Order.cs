@@ -6,7 +6,7 @@ using MariaPizzaKassaApp.classes;
 public class Order
 {
     public DateTime OrderDate { get; private set; }
-    public List<Pizza> Pizzas { get; private set; }
+    private List<Pizza> Pizzas { get; set; }
     public Dictionary<Pizza, List<Ingredient>> AddedIngredients { get; private set; }
     public Dictionary<Pizza, List<Ingredient>> RemovedIngredients { get; private set; }
     public Customer OrderCustomer { get; private set; }
@@ -17,6 +17,11 @@ public class Order
         Pizzas = pizzas;
         AddedIngredients = new Dictionary<Pizza, List<Ingredient>>();
         RemovedIngredients = new Dictionary<Pizza, List<Ingredient>>();
+    }
+
+    public IReadOnlyList<Pizza> GetPizzas()
+    {
+        return Pizzas;
     }
 
     public void AddPizza(Pizza pizza, List<Ingredient> addedIngredients, List<Ingredient> removedIngredients)

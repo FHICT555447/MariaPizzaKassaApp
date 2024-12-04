@@ -34,7 +34,7 @@ namespace MarioPizzaKassaApp
                     Width = 100,
                     Content = ingredient.Name,
                     Margin = new Thickness(5),
-                    IsChecked = _pizza.Ingredients.Any(pizzaIngredient => pizzaIngredient.ID == ingredient.ID),
+                    IsChecked = _pizza.GetIngredients().Any(pizzaIngredient => pizzaIngredient.ID == ingredient.ID),
                     Tag = ingredient,
                 };
                 ingredientCheckBox.Checked += IngredientCheckBox_Checked;
@@ -74,7 +74,7 @@ namespace MarioPizzaKassaApp
             Ingredient ingredient = checkBox.Tag as Ingredient;
 
             // Check if the ingredient is part of the pizza
-            if (_pizza.Ingredients.Contains(ingredient))
+            if (_pizza.GetIngredients().Contains(ingredient))
             {
                 // If the ingredient is already part of the pizza, it should not be added to AddedIngredients
                 RemovedIngredients.Remove(ingredient); // In case it was previously marked for removal
@@ -90,11 +90,11 @@ namespace MarioPizzaKassaApp
             CheckBox checkBox = sender as CheckBox;
             Ingredient ingredient = checkBox.Tag as Ingredient;
 
-            Console.WriteLine(_pizza.Ingredients);
+            Console.WriteLine(_pizza.GetIngredients());
             Console.WriteLine(ingredient);
 
             // Check if the ingredient is part of the pizza
-            if (_pizza.Ingredients.Contains(ingredient))
+            if (_pizza.GetIngredients().Contains(ingredient))
             {
                 RemovedIngredients.Add(ingredient);
             }
