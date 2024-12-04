@@ -36,6 +36,16 @@ public class Order
         }
     }
 
+    public decimal GetTotalPrice()
+    {
+        decimal totalPrice = 0;
+        foreach (Pizza pizza in Pizzas)
+        {
+            totalPrice += pizza.Price + (decimal)pizza.Size;
+        }
+        return totalPrice;
+    }
+
     public void AddCustomer(Customer customer)
     {
         if (OrderCustomer == null)

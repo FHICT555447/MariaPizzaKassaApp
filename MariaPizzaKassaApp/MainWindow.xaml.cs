@@ -25,7 +25,6 @@ namespace MarioPizzaKassaApp
     public partial class MainWindow : Window
     {
         private Order currentOrder;
-        private decimal totalPrice;
         private int totalPizzaAmount;
 
         public MainWindow()
@@ -135,13 +134,10 @@ namespace MarioPizzaKassaApp
         {
             OrderDetailsPanel.Children.Clear();
 
-            totalPrice = 0;
             totalPizzaAmount = currentOrder.Pizzas.Count;
 
             foreach (var pizza in currentOrder.Pizzas)
             {
-                totalPrice += pizza.Price + (decimal)pizza.Size; //adding size to price to indicate the correct price in the DB
-
                 Rectangle pizzaRect = new Rectangle
                 {
                     Margin = new Thickness(2),
@@ -178,7 +174,7 @@ namespace MarioPizzaKassaApp
 
                 TextBlock pizzaPrice = new TextBlock
                 {
-                    Text = $"Price: {pizza.Price + (decimal)pizza.Size:C}",
+                    Text = $"Price: {(pizza.Price + (decimal)pizza.Size):C}",
                     Margin = new Thickness(5, 0, 0, 0),
                     FontSize = 15,
                     TextWrapping = TextWrapping.Wrap
@@ -245,7 +241,7 @@ namespace MarioPizzaKassaApp
                 OrderDetailsPanel.Children.Add(grid);
             }
 
-            totalAmount.Text = $"Total: {totalPrice:C}";
+            totalAmount.Text = $"Total: {currentOrder.GetTotalPrice():C}";
             pizzaCount.Text = $"Pizza Amount: {totalPizzaAmount}";
         }
 
@@ -268,7 +264,6 @@ namespace MarioPizzaKassaApp
 
             OrderDetailsPanel.Children.Clear();
             currentOrder = null;
-            totalPrice = 0;
             totalAmount.Text = $"Total: €0,-";
             totalPizzaAmount = 0;
             pizzaCount.Text = $"Pizza Amount: 0";
@@ -290,7 +285,7 @@ namespace MarioPizzaKassaApp
                 try
                 {
                     MySqlCommand cmd = new MySqlCommand(insertOrderQuery, conn, transaction);
-                    cmd.Parameters.AddWithValue("@total_price", totalPrice);
+                    cmd.Parameters.AddWithValue("@total_price", currentOrder.GetTotalPrice());
                     cmd.Parameters.AddWithValue("@order_date", currentOrder.OrderDate);
                     cmd.ExecuteNonQuery();
 
