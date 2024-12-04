@@ -251,13 +251,21 @@ namespace MarioPizzaKassaApp
             {
                 currentOrder.RemovePizza(pizza);
                 UpdateOrderDetailsPanel();
+                if(currentOrder.Pizzas.Count == 0)
+                {
+                    currentOrder = null;
+                }
             }
         }
 
         private void CompleteOrder(object sender, RoutedEventArgs e)
         {
 
-            if (currentOrder == null) return;
+            if (currentOrder == null)
+            {
+                MessageBox.Show("No pizzas in the order to complete.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
             SaveOrderToDatabase(currentOrder);
             SaveModificationsToDatabase(currentOrder);
