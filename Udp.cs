@@ -1,122 +1,79 @@
-using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 
 namespace dotnet_pizza_protocol {
-    public class DataSender(string ipAddress, int port) {
+    public class UdpSender(string ipAddress, int port) {
         private readonly UdpClient Client = new();
         private readonly IPEndPoint Endpoint = new(IPAddress.Parse(ipAddress), port);
 
         void Send(byte[] data) {
             try
             {
-                // Send the message
                 Client.Send(data, data.Length, Endpoint);
                 Console.WriteLine("Message sent successfully!");
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                Console.WriteLine($"Error sending message: {ex.Message}");
+                Console.WriteLine($"Error sending message: {e.Message}");
             }
         }
     }
 
-    public class UdpMessageEventArgs(byte command, byte[] data, IPEndPoint source) : EventArgs
+    public class UdpReceiver : IDisposable
     {
-        public byte Command { get; } = command;
-        public byte[] Data { get; } = data;
-        public IPEndPoint Source { get; } = source;
-    }
+        public delegate void DataReceivedHandler(byte[] bytes);
+        public event DataReceivedHandler? OnDataReceived;
 
-    public class DataReceiver : IDisposable {
-        private readonly UdpClient Listener;
-        // private readonly IPEndPoint Endpoint = new(IPAddress.Parse(ipAddress), port);
-        private readonly CancellationTokenSource _cancellationTokenSource = new();
-        private Task _receiverTask = Task.CompletedTask;
-        private bool _disposed = false;
+        private readonly int _port;
+        private UdpClient? _udpClient;
+        private bool _isListening;
 
-        // Thread-safe queue to store received messages
-        public BlockingCollection<UdpMessageEventArgs> MessageQueue { get; } = [];
+        public UdpReceiver(int port)
+        {
+            _port = port;
+            
+            if (_isListening)
+                throw new InvalidOperationException("Listener is already running.");
 
-        // Event that can be used for more immediate processing
-        public event EventHandler<UdpMessageEventArgs>? MessageReceived;
+            _udpClient = new UdpClient(_port);
+            _isListening = true;
 
-        public DataReceiver(int port) {
-            Listener = new(port);
-
-            StartListening();
+            Task.Run(() => Listen());
         }
 
-        private void StartListening()
+        public void Stop()
         {
-            _receiverTask = Task.Run(async () =>
+            _isListening = false;
+            _udpClient?.Close();
+            _udpClient = null;
+        }
+
+        private void Listen()
+        {
+            IPEndPoint remoteEndPoint = new(IPAddress.Any, _port);
+
+            while (_isListening && _udpClient is not null)
             {
-                while (!_cancellationTokenSource.Token.IsCancellationRequested)
+                try
                 {
-                    try
-                    {
-                        UdpReceiveResult result = await Listener.ReceiveAsync();
-
-                        // First byte is the command
-                        byte command = result.Buffer[0];
-                        
-                        // Rest of the bytes are data
-                        byte[] data = new byte[result.Buffer.Length - 1];
-                        Array.Copy(result.Buffer, 1, data, 0, data.Length);
-
-                        // Create message event args
-                        var messageArgs = new UdpMessageEventArgs(command, data, result.RemoteEndPoint);
-
-                        // Add to thread-safe queue
-                        MessageQueue.Add(messageArgs);
-
-                        // Trigger event for immediate processing if needed
-                        MessageReceived?.Invoke(this, messageArgs);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error receiving message: {ex.Message}");
-                    }
+                    byte[] receivedBytes = _udpClient.Receive(ref remoteEndPoint);
+                    OnDataReceived?.Invoke(receivedBytes);
                 }
-            }, _cancellationTokenSource.Token);
+                catch (SocketException) when (!_isListening)
+                {
+                    Console.WriteLine("Listener stopped");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                }
+            }
         }
 
         public void Dispose()
         {
-            Dispose(true);
+            Stop();
             GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    // Cancel and wait for the task
-                    _cancellationTokenSource.Cancel();
-                    
-                    // Wait for the receiver task to complete
-                    _receiverTask.Wait();
-
-                    // Close resources
-                    Listener.Close();
-                    MessageQueue.Dispose();
-                    _cancellationTokenSource.Dispose();
-                }
-
-                _disposed = true;
-            }
-        }
-
-        // Finalizer
-        ~DataReceiver()
-        {
-            Dispose(false);
         }
     }
 }

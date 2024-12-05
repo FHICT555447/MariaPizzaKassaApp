@@ -41,7 +41,7 @@
 //                         UdpReceiveResult result = await _listener.ReceiveAsync();
 
 //                         byte command = result.Buffer[0];
-                        
+
 //                         byte[] data = new byte[result.Buffer.Length - 1];
 //                         Array.Copy(result.Buffer, 1, data, 0, data.Length);
 
@@ -77,7 +77,7 @@
 //                 {
 //                     // Cancel and wait for the task
 //                     _cancellationTokenSource.Cancel();
-                    
+
 //                     // Wait for the receiver task to complete
 //                     _receiverTask.Wait();
 
@@ -126,62 +126,30 @@
 //     }
 // }
 
-using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace dotnet_pizza_protocol {
     class Program
     {
-        // Define a delegate for handling received data
-        public delegate void DataReceivedHandler(byte[] bytes);
-        public static event DataReceivedHandler? OnDataReceived;
-
         static void Main(string[] args)
         {
-            // Subscribe to the event in the main process
-            OnDataReceived += ProcessReceivedData;
-
-            // Start the UDP listener on a separate thread
-            Task.Run(StartUdpListener);
-
-            Console.WriteLine("UDP Listener started. Press Enter to exit...");
-            Console.ReadLine();
-        }
-
-        static void StartUdpListener()
-        {
-            using (UdpClient udpClient = new UdpClient(9999))
+            using (var udpListener = new UdpReceiver(9999))
             {
-                IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 9999);
-                Console.WriteLine("Listening for UDP packets on port 9999...");
-
-                while (true)
-                {
-                    try
-                    {
-                        // Receive data from the UDP client
-                        byte[] receivedBytes = udpClient.Receive(ref remoteEndPoint);
-
-                        // Invoke the event to pass data to the main thread
-                        OnDataReceived?.Invoke(receivedBytes);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error: {ex.Message}");
-                    }
-                }
+                udpListener.OnDataReceived += ProcessReceivedData;
+                
+                Console.WriteLine("UDP Listener started. Press Enter to stop...");
+                Console.ReadLine();
             }
+            Console.WriteLine("UDP Listener stopped.");
         }
 
-        // Method to handle received data in the main process
         static void ProcessReceivedData(byte[] bytes)
         {
-            Console.Write($"Received Data: {bytes}");
-            // Further processing logic here...
+            Console.Write($"Received Data: ");
+            foreach (var b in bytes) {
+                Console.Write(b);
+            }
+            Console.WriteLine();
         }
     }
 }
