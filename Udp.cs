@@ -1,52 +1,76 @@
-using System;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Concurrent;
 
 namespace dotnet_pizza_protocol {
-    public class UdpReceiver : IDisposable
+    public class DataSender(string ipAddress, int port) {
+        private readonly UdpClient Client = new();
+        private readonly IPEndPoint Endpoint = new(IPAddress.Parse(ipAddress), port);
+
+        void Send(byte[] data) {
+            try
+            {
+                // Send the message
+                Client.Send(data, data.Length, Endpoint);
+                Console.WriteLine("Message sent successfully!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending message: {ex.Message}");
+            }
+        }
+    }
+
+    public class UdpMessageEventArgs(byte command, byte[] data, IPEndPoint source) : EventArgs
     {
-        private readonly UdpClient _listener;
-        private readonly CancellationTokenSource _cancellationTokenSource;
+        public byte Command { get; } = command;
+        public byte[] Data { get; } = data;
+        public IPEndPoint Source { get; } = source;
+    }
+
+    public class DataReceiver : IDisposable {
+        private readonly UdpClient Listener;
+        // private readonly IPEndPoint Endpoint = new(IPAddress.Parse(ipAddress), port);
+        private readonly CancellationTokenSource _cancellationTokenSource = new();
         private Task _receiverTask = Task.CompletedTask;
         private bool _disposed = false;
 
-        public BlockingCollection<UdpMessageEventArgs> MessageQueue { get; } 
-            = new BlockingCollection<UdpMessageEventArgs>();
+        // Thread-safe queue to store received messages
+        public BlockingCollection<UdpMessageEventArgs> MessageQueue { get; } = [];
 
+        // Event that can be used for more immediate processing
         public event EventHandler<UdpMessageEventArgs>? MessageReceived;
 
-        public UdpReceiver(int port = 9999)
-        {
-            _listener = new UdpClient(port);
-            _cancellationTokenSource = new CancellationTokenSource();
+        public DataReceiver(int port) {
+            Listener = new(port);
 
-            // Start listening in the constructor
             StartListening();
         }
 
         private void StartListening()
         {
-            Console.WriteLine($"Starting listening");
-
             _receiverTask = Task.Run(async () =>
             {
                 while (!_cancellationTokenSource.Token.IsCancellationRequested)
                 {
                     try
                     {
-                        UdpReceiveResult result = await _listener.ReceiveAsync();
+                        UdpReceiveResult result = await Listener.ReceiveAsync();
 
+                        // First byte is the command
                         byte command = result.Buffer[0];
                         
+                        // Rest of the bytes are data
                         byte[] data = new byte[result.Buffer.Length - 1];
                         Array.Copy(result.Buffer, 1, data, 0, data.Length);
 
+                        // Create message event args
                         var messageArgs = new UdpMessageEventArgs(command, data, result.RemoteEndPoint);
 
+                        // Add to thread-safe queue
                         MessageQueue.Add(messageArgs);
+
+                        // Trigger event for immediate processing if needed
                         MessageReceived?.Invoke(this, messageArgs);
                     }
                     catch (OperationCanceledException)
@@ -61,7 +85,6 @@ namespace dotnet_pizza_protocol {
             }, _cancellationTokenSource.Token);
         }
 
-        // Implement IDisposable
         public void Dispose()
         {
             Dispose(true);
@@ -81,7 +104,7 @@ namespace dotnet_pizza_protocol {
                     _receiverTask.Wait();
 
                     // Close resources
-                    _listener.Close();
+                    Listener.Close();
                     MessageQueue.Dispose();
                     _cancellationTokenSource.Dispose();
                 }
@@ -91,34 +114,9 @@ namespace dotnet_pizza_protocol {
         }
 
         // Finalizer
-        ~UdpReceiver()
+        ~DataReceiver()
         {
             Dispose(false);
-            Console.WriteLine("Disposed");
-        }
-    }
-
-    // Usage example
-    class Program
-    {
-        static async Task Main()
-        {
-            // Using statement ensures proper disposal
-            using var receiver = new UdpReceiver();
-            // Process messages
-            await Task.Run(() => {
-                foreach (var message in receiver.MessageQueue.GetConsumingEnumerable())
-                {
-                    ProcessMessage(message);
-                }
-            });
-            // Automatically calls Dispose() here
-        }
-
-        static void ProcessMessage(UdpMessageEventArgs message)
-        {
-            Console.WriteLine(message.Data);
-            // Message processing logic
         }
     }
 }
