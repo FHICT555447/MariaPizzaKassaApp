@@ -6,7 +6,7 @@ namespace dotnet_pizza_protocol {
         private readonly UdpClient Client = new();
         private readonly IPEndPoint Endpoint = new(IPAddress.Parse(ipAddress), port);
 
-        void Send(byte[] data) {
+        public void Send(byte[] data) {
             try
             {
                 Client.Send(data, data.Length, Endpoint);
