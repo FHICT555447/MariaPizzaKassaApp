@@ -5,13 +5,13 @@ namespace dotnet_pizza_protocol {
         {
             UdpSender sender = new("192.168.68.242", 8888);
 
-            // var expanded = new PizzaOrderExpanded(10, "Pepperoni", "Small", [
-            //     new ExpandedModification(ModificationType.Add, "Mushrooms")
-            // ]);
-            var minimized = new PizzaOrderMinimized(11, 7);
+            var expanded = new PizzaOrderExpanded(10, "Pepperoni", "Small", [
+                new ExpandedModification(ModificationType.Add, "Mushrooms")
+            ]);
+            // var minimized = new PizzaOrderMinimized(11, 7);
 
-            // sender.Send(expanded.Serialize());
-            sender.Send(minimized.Serialize());
+            sender.Send(expanded.Serialize());
+            // sender.Send(minimized.Serialize());
 
             using (var udpListener = new UdpReceiver(9999))
             {
