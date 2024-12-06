@@ -355,9 +355,9 @@ namespace dotnet_pizza_protocol
         }
 
         public byte[]? Serialize() => this switch {
-            OrderMinimized m => m.Serialize(),
-            OrderMinimizedModifications mm => mm.Serialize(),
-            OrderExpanded e => e.Serialize(),
+            OrderMinimized m => m.Order.Serialize(),
+            OrderMinimizedModifications mm => mm.Order.Serialize(),
+            OrderExpanded e => e.Order.Serialize(),
             IdsUnavailable => [((byte)Opcode.IdsUnavailable << 4 & Constants.LEFT_FOUR_BITS)],
             IdsAvailable => [(byte)Opcode.IdsAvailable << 4 & Constants.LEFT_FOUR_BITS],
             _ => null
