@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -76,6 +77,17 @@ namespace dotnet_pizza_protocol
 
             return [.. res];
         }
+
+        public override string ToString()
+        {
+            StringBuilder s = new();
+
+            s.AppendFormat($"id: {GetPizzaId()}\n");
+            s.AppendFormat($"size id: {GetSizeId()}\n");
+            s.AppendFormat($"count: {GetCount()}\n");
+
+            return s.ToString();
+        }
     }
 
     public readonly struct MinimizedModification(byte mod)
@@ -83,8 +95,22 @@ namespace dotnet_pizza_protocol
         private readonly byte Mod = mod;
 
         public ModificationType GetModType() { return (ModificationType)(Mod >> Constants.ModTypeShift); }
-        public byte GetModID() { return (byte)(Mod & Constants.ModLengthBits); }
+        public byte GetModId() { return (byte)(Mod & Constants.ModLengthBits); }
         public byte GetMod() { return Mod; }
+
+        public override string ToString()
+        {
+            StringBuilder res = new();
+            
+            if (GetModType() == ModificationType.Add) {
+                res.Append("add id: ");
+            } else {
+                res.Append("remove id: ");
+            }
+            res.AppendFormat($"{GetModId()}\n");
+
+            return res.ToString();
+        }
     }
 
     public class PizzaOrderMinimizedModifications(
@@ -151,6 +177,19 @@ namespace dotnet_pizza_protocol
 
             return [.. res];
         }
+
+        public override string ToString()
+        {
+            StringBuilder res = new();
+
+            res.Append(Minimized);
+            res.Append("mods:\n");
+            foreach (var mod in Mods) {
+                res.AppendFormat($"    {mod}\n");
+            }
+
+            return res.ToString();
+        }
     }
 
     public class ExpandedModification(
@@ -163,7 +202,7 @@ namespace dotnet_pizza_protocol
 
         public ModificationType GetModType() { return Mod; }
         // public byte GetModNameLength() { return (byte)(ModName.Length); }
-        public string GetModname() { return ModName; }
+        public string GetModName() { return ModName; }
 
         public static ExpandedModification? Deserialize(byte[] bytes, int length)
         {
@@ -199,12 +238,21 @@ namespace dotnet_pizza_protocol
             List<byte> res = new(length + 1) { b1 };
             res.AddRange(utf8Bytes);
 
-            // for (int i = 0; i < length; ++i)
-            // {
-            //     res.Add(utf8Bytes[i]);
-            // }
-
             return [.. res];
+        }
+
+        public override string ToString()
+        {
+            StringBuilder res = new();
+            
+            if (GetModType() == ModificationType.Add) {
+                res.Append("add: ");
+            } else {
+                res.Append("remove: ");
+            }
+            res.AppendFormat($"{GetModName()}\n");
+
+            return res.ToString();
         }
     }
 
@@ -314,6 +362,22 @@ namespace dotnet_pizza_protocol
 
             return [.. res];
         }
+
+        public override string ToString()
+        {
+            StringBuilder s = new();
+
+            s.AppendFormat($"name: {GetPizzaName()}\n");
+            s.AppendFormat($"size: {GetSizeName()}\n");
+            s.AppendFormat($"count: {GetCount()}\n");
+            s.Append("mods:\n");
+
+            foreach (var mod in Mods) {
+                s.AppendFormat($"    {mod}\n");
+            }
+
+            return s.ToString();
+        }
     }
 
     public abstract record PizzaMessage
@@ -361,6 +425,16 @@ namespace dotnet_pizza_protocol
             IdsUnavailable => [((byte)Opcode.IdsUnavailable << 4 & Constants.LEFT_FOUR_BITS)],
             IdsAvailable => [(byte)Opcode.IdsAvailable << 4 & Constants.LEFT_FOUR_BITS],
             _ => null
+        };
+
+        public override string ToString() => this switch {
+            OrderMinimized m => m.Order.ToString(),
+            OrderMinimizedModifications mm => mm.Order.ToString(),
+            OrderExpanded e => e.Order.ToString(),
+            IdsUnavailable => "ids available",
+            IdsAvailable => "ids unavailable",
+            InvalidOrder => "invalid order",
+            _ => throw new UnreachableException()
         };
     }
 }

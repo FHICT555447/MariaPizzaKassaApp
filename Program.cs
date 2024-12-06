@@ -29,7 +29,7 @@ namespace dotnet_pizza_protocol {
         {
             PizzaMessage m = PizzaMessage.Deserialize(bytes);
 
-            Console.WriteLine(m.GetType());
+            Console.WriteLine(m.ToString());
             
             Thread.Sleep(1000);
 
