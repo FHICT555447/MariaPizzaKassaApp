@@ -15,7 +15,7 @@ namespace dotnet_pizza_protocol {
 
         static void ProcessReceivedData(byte[] bytes)
         {
-            PizzaMessage m = PizzaMessage.Receive(bytes);
+            PizzaMessage m = PizzaMessage.Deserialize(bytes);
 
             Console.WriteLine(m.GetType());
         }

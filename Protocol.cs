@@ -325,7 +325,7 @@ namespace dotnet_pizza_protocol
         public record IdsAvailable : PizzaMessage;
         public record InvalidOrder : PizzaMessage;
 
-        public static PizzaMessage Receive(byte[] bytes)
+        public static PizzaMessage Deserialize(byte[] bytes)
         {
             if (bytes.Length == 0)
             {
