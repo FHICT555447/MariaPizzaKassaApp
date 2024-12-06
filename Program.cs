@@ -28,6 +28,8 @@ namespace dotnet_pizza_protocol {
             PizzaMessage m = PizzaMessage.Deserialize(bytes);
 
             Console.WriteLine(m.GetType());
+            
+            Thread.Sleep(1000);
 
             UdpSender sender = new("192.168.68.242", 8888);
 
@@ -35,7 +37,6 @@ namespace dotnet_pizza_protocol {
             if (maybeBytes is not null) {
                 sender.Send(maybeBytes);
             }
-
         }
     }
 }
