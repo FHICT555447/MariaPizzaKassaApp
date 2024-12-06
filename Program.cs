@@ -5,8 +5,10 @@ namespace dotnet_pizza_protocol {
         {
             UdpSender sender = new("192.168.68.242", 8888);
 
-            var expanded = new PizzaOrderExpanded(10, "Pepperoni", "Small", [
-                new ExpandedModification(ModificationType.Add, "Mushrooms")
+            var expanded = new PizzaOrderExpanded(2, "Pepperoni", "Extra Large", [
+                new ExpandedModification(ModificationType.Add, "Mushrooms"),
+                new ExpandedModification(ModificationType.Add, "Jalapenos"),
+                new ExpandedModification(ModificationType.Remove, "Pepperoni")
             ]);
             // var minimized = new PizzaOrderMinimized(11, 7);
 
