@@ -18,12 +18,12 @@ namespace MarioPizzaKassaApp.classes
         public bool IsFinishingIngredient { get; private set; }
 
         //constructor
-        public Ingredient(int id, string name, decimal purchasePrice, bool ifFinishingIngredient)
+        public Ingredient(int id, string name, decimal purchasePrice, bool isFinishingIngredient)
         {
             ID = id;
             Name = name;
             PurchasePrice = purchasePrice;
-            IsFinishingIngredient = ifFinishingIngredient;
+            IsFinishingIngredient = isFinishingIngredient;
         }
 
         //methods

@@ -12,7 +12,7 @@ namespace MarioPizzaKassaApp.classes
         public int ID { get; private set; }
         public string Name { get; private set; }
         public decimal Price { get; private set; }
-        public List<Ingredient> Ingredients { get; private set; }
+        private List<Ingredient> Ingredients { get; set; }
         public PizzaSize.Size Size { get; private set; }
 
         //constructor without size
@@ -32,6 +32,21 @@ namespace MarioPizzaKassaApp.classes
             Price = price;
             Ingredients = ingredients;
             Size = size;
+        }
+
+        //methods
+        public IReadOnlyList<Ingredient> GetIngredients()
+        {
+            return Ingredients;
+        }
+
+        public void AddIngredient(Ingredient ingredient)
+        {
+            Ingredients.Add(ingredient);
+        }
+        public void RemoveIngredient(Ingredient ingredient)
+        {
+            Ingredients.Remove(ingredient);
         }
     }
 }
