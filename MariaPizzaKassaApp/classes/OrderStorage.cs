@@ -106,7 +106,7 @@ namespace MariaPizzaKassaApp.classes
                                     // Use the last inserted order_pizzaID for the current pizza
                                     cmd.Parameters.AddWithValue("@orderPizzaID", lastInsertedOrderPizzaID);
                                     cmd.Parameters.AddWithValue("@ingredientID", ingredient.ID);
-                                    cmd.Parameters.AddWithValue("@modificationType", 1); // 1 for addition
+                                    cmd.Parameters.AddWithValue("@modificationType", 0); // 0 for addition
                                     cmd.ExecuteNonQuery();
                                 }
                             }
@@ -122,7 +122,7 @@ namespace MariaPizzaKassaApp.classes
                                     // Use the last inserted order_pizzaID for the current pizza
                                     cmd.Parameters.AddWithValue("@orderPizzaID", lastInsertedOrderPizzaID);
                                     cmd.Parameters.AddWithValue("@ingredientID", ingredient.ID);
-                                    cmd.Parameters.AddWithValue("@modificationType", 0); // 0 for removal
+                                    cmd.Parameters.AddWithValue("@modificationType", 1); // 1 for removal
                                     cmd.ExecuteNonQuery();
                                 }
                             }
