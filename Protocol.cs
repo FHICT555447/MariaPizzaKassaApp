@@ -250,7 +250,7 @@ namespace dotnet_pizza_protocol
             } else {
                 res.Append("remove: ");
             }
-            res.AppendFormat($"{GetModName()}\n");
+            res.AppendFormat($"{GetModName()}");
 
             return res.ToString();
         }
@@ -375,6 +375,8 @@ namespace dotnet_pizza_protocol
             foreach (var mod in Mods) {
                 s.AppendFormat($"    {mod}\n");
             }
+
+            s.Length--;
 
             return s.ToString();
         }
