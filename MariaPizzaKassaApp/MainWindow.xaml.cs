@@ -28,6 +28,8 @@ namespace MarioPizzaKassaApp
         private Order currentOrder;
         private OrderStorage orderStorage;
         private int totalPizzaAmount;
+        private string[] PizzaButtonColors = { "#FFCCCB", "#FFFFE0" };
+        private int PizzaButtonColorIndex = 0;
 
         public MainWindow()
         {
@@ -99,12 +101,14 @@ namespace MarioPizzaKassaApp
                 Button button = new Button
                 {
                     Content = pizza.Name,
+                    Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(PizzaButtonColors[PizzaButtonColorIndex % 2])),
                     Margin = new Thickness(38, 30, 0, 38),
                     Height = 150,
                     Width = 250
                 };
                 button.Click += (sender, e) => ShowPizzaDetails(pizza);
                 PizzaButtonsPanel.Children.Add(button);
+                PizzaButtonColorIndex++;
             }
         }
 
