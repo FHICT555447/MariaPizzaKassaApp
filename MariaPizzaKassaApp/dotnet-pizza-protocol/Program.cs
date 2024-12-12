@@ -1,15 +1,19 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+
 namespace dotnet_pizza_protocol {
     class Program
     {
-        static void Main(string[] args)
+        static void MainFunction(string[] args)
         {
             UdpSender sender = new("192.168.68.242", 8888);
 
-            var expanded = new PizzaOrderExpanded(2, "Pepperoni", "Extra Large", [
-                new ExpandedModification(ModificationType.Add, "Mushrooms"),
-                new ExpandedModification(ModificationType.Add, "Jalapenos"),
-                new ExpandedModification(ModificationType.Remove, "Pepperoni")
-            ]);
+            var expanded = new PizzaOrderExpanded(2, "Pepperoni", "Extra Large", new List<ExpandedModification> {
+                    new ExpandedModification(ModificationType.Add, "Mushrooms"),
+                    new ExpandedModification(ModificationType.Add, "Jalapenos"),
+                    new ExpandedModification(ModificationType.Remove, "Pepperoni")
+                });
             var minimized = new PizzaOrderMinimized(11, 7);
 
             sender.Send(expanded.Serialize());
@@ -30,13 +34,14 @@ namespace dotnet_pizza_protocol {
             PizzaMessage m = PizzaMessage.Deserialize(bytes);
 
             Console.WriteLine(m.ToString());
-            
+
             Thread.Sleep(1000);
 
             UdpSender sender = new("192.168.68.242", 8888);
 
             var maybeBytes = m.Serialize();
-            if (maybeBytes is not null) {
+            if (maybeBytes is not null)
+            {
                 sender.Send(maybeBytes);
             }
         }

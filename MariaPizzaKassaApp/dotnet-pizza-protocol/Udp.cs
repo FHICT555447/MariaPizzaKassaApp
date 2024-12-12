@@ -1,5 +1,7 @@
+using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace dotnet_pizza_protocol {
     public class UdpSender(string ipAddress, int port) {
