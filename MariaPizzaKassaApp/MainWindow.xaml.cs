@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using dotnet_pizza_protocol;
 using MariaPizzaKassaApp.classes;
 using MarioPizzaKassaApp.classes;
 using Microsoft.Extensions.Configuration;
@@ -267,7 +268,6 @@ namespace MarioPizzaKassaApp
 
         private void CompleteOrder(object sender, RoutedEventArgs e)
         {
-
             if (currentOrder == null)
             {
                 MessageBox.Show("No pizzas in the order to complete.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -276,6 +276,7 @@ namespace MarioPizzaKassaApp
 
             if(orderStorage.SaveOrderToDatabase(currentOrder) && orderStorage.SaveModificationsToDatabase(currentOrder))
             {
+                Program.MainFunction(currentOrder);
                 MessageBox.Show("Order completed successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
 
