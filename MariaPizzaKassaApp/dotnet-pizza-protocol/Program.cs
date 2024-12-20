@@ -17,19 +17,25 @@ namespace dotnet_pizza_protocol
                 .GroupBy(p => new
                 {
                     p.ID,
-                    Added = order.AddedIngredients[p],
-                    Removed = order.RemovedIngredients[p]
+                    p.Size,
+                    Ingredients = p.GetIngredients()
                 });
 
             foreach (var group in groupedPizzas)
             {
                 var count = group.Count();
                 var pizza = group.First();
-                var addedIngredients = order.AddedIngredients[pizza].Select(i => new ExpandedModification(ModificationType.Add, i.Name)).ToList();
-                var removedIngredients = order.RemovedIngredients[pizza].Select(i => new ExpandedModification(ModificationType.Remove, i.Name)).ToList();
-                var modifications = addedIngredients.Concat(removedIngredients).ToList();
+
+                // Retrieve added and removed ingredients for the current group
+                var addedIngredients = group.SelectMany(p => order.AddedIngredients.ContainsKey(p) ? order.AddedIngredients[p] : new List<Ingredient>()).Distinct().ToList();
+                var removedIngredients = group.SelectMany(p => order.RemovedIngredients.ContainsKey(p) ? order.RemovedIngredients[p] : new List<Ingredient>()).Distinct().ToList();
+
+                var modifications = addedIngredients.Select(ingredient => new ExpandedModification(ModificationType.Add, ingredient.Name))
+                    .Concat(removedIngredients.Select(ingredient => new ExpandedModification(ModificationType.Remove, ingredient.Name)))
+                    .ToList();
 
                 var expanded = new PizzaOrderExpanded((byte)count, pizza.Name, pizza.Size.ToString(), modifications);
+                System.Diagnostics.Debug.WriteLine($"PizzaGroup {group}");
                 sender.Send(expanded.Serialize());
             }
 

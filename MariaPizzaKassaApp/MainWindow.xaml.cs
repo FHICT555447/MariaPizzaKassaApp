@@ -27,14 +27,14 @@ namespace MarioPizzaKassaApp
     public partial class MainWindow : Window
     {
         private Order currentOrder;
-        private OrderStorage orderStorage;
+        private Sender dataSender;
         private int totalPizzaAmount;
         private string[] PizzaButtonColors = { "#FFCCCB", "#FFFFE0" };
         private int PizzaButtonColorIndex = 0;
 
         public MainWindow()
         {
-            orderStorage = new OrderStorage();
+            dataSender = new Sender();
             InitializeComponent();
             List<Pizza> pizzas = GetPizzasFromDatabase();
             CreatePizzaButtons(pizzas);
@@ -274,17 +274,15 @@ namespace MarioPizzaKassaApp
                 return;
             }
 
-            if(orderStorage.SaveOrderToDatabase(currentOrder) && orderStorage.SaveModificationsToDatabase(currentOrder))
+            if (dataSender.OrderToDatabase(currentOrder))
             {
                 Program.MainFunction(currentOrder);
-                MessageBox.Show("Order completed successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                OrderDetailsPanel.Children.Clear();
+                currentOrder = null;
+                totalAmount.Text = $"Total: €0,-";
+                totalPizzaAmount = 0;
+                pizzaCount.Text = $"Pizza Amount: 0";
             }
-
-            OrderDetailsPanel.Children.Clear();
-            currentOrder = null;
-            totalAmount.Text = $"Total: €0,-";
-            totalPizzaAmount = 0;
-            pizzaCount.Text = $"Pizza Amount: 0";
         }
     }
 }
