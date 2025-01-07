@@ -276,7 +276,6 @@ namespace MarioPizzaKassaApp
 
             if (dataSender.OrderToDatabase(currentOrder))
             {
-                Program.MainFunction(currentOrder);
                 OrderDetailsPanel.Children.Clear();
                 currentOrder = null;
                 totalAmount.Text = $"Total: €0,-";

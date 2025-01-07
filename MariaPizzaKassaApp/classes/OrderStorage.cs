@@ -47,7 +47,7 @@ namespace MariaPizzaKassaApp.classes
 
                     var pizzasJson = order.GetPizzas().Select(pizza => new
                     {
-                        id = pizza.ID,
+                        id = pizza.ID + pizza.Size,
                         name = pizza.Name,
                         price = pizza.Price,
                         ingredients = pizza.GetIngredients().Select(ingredient => new
