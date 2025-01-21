@@ -201,18 +201,18 @@ namespace MarioPizzaKassaApp
                 StringBuilder modifications = new StringBuilder();
 
                 // Check for added ingredients
-                if (currentOrder.AddedIngredients != null && currentOrder.AddedIngredients.ContainsKey(pizza))
+                if (currentOrder.GetAddedIngredients() != null && currentOrder.GetAddedIngredients().ContainsKey(pizza))
                 {
-                    foreach (var ingredient in currentOrder.AddedIngredients[pizza])
+                    foreach (var ingredient in currentOrder.GetAddedIngredients()[pizza])
                     {
                         modifications.Append($"{ingredient.Name} +, ");
                     }
                 }
 
                 // Check for removed ingredients
-                if (currentOrder.RemovedIngredients != null && currentOrder.RemovedIngredients.ContainsKey(pizza))
+                if (currentOrder.GetAddedIngredients() != null && currentOrder.GetAddedIngredients().ContainsKey(pizza))
                 {
-                    foreach (var ingredient in currentOrder.RemovedIngredients[pizza])
+                    foreach (var ingredient in currentOrder.GetAddedIngredients()[pizza])
                     {
                         modifications.Append($"{ingredient.Name} -, ");
                     }

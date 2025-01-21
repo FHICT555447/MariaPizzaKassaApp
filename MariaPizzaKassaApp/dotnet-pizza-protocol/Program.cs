@@ -27,8 +27,8 @@ namespace dotnet_pizza_protocol
                 var pizza = group.First();
 
                 // Retrieve added and removed ingredients for the current group
-                var addedIngredients = group.SelectMany(p => order.AddedIngredients.ContainsKey(p) ? order.AddedIngredients[p] : new List<Ingredient>()).Distinct().ToList();
-                var removedIngredients = group.SelectMany(p => order.RemovedIngredients.ContainsKey(p) ? order.RemovedIngredients[p] : new List<Ingredient>()).Distinct().ToList();
+                var addedIngredients = group.SelectMany(p => order.GetAddedIngredients().ContainsKey(p) ? order.GetAddedIngredients()[p] : new List<Ingredient>()).Distinct().ToList();
+                var removedIngredients = group.SelectMany(p => order.GetRemovedIngredients().ContainsKey(p) ? order.GetAddedIngredients()[p] : new List<Ingredient>()).Distinct().ToList();
 
                 var modifications = addedIngredients.Select(ingredient => new ExpandedModification(ModificationType.Add, ingredient.Name))
                     .Concat(removedIngredients.Select(ingredient => new ExpandedModification(ModificationType.Remove, ingredient.Name)))

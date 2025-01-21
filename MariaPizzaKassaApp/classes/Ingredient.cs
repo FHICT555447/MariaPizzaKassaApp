@@ -20,20 +20,18 @@ namespace MarioPizzaKassaApp.classes
         //constructor
         public Ingredient(int id, string name, decimal purchasePrice, bool isFinishingIngredient)
         {
+            if (id <= 0)
+                throw new ArgumentException("ID must be greater than zero.", nameof(id));
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Name cannot be null or empty.", nameof(name));
+            if (purchasePrice < 0)
+                throw new ArgumentException("Purchase price cannot be negative.", nameof(purchasePrice));
+
             ID = id;
             Name = name;
             PurchasePrice = purchasePrice;
             IsFinishingIngredient = isFinishingIngredient;
         }
-
-        //methods
-        //private static IConfigurationRoot LoadConfiguration()
-        //{
-        //    var builder = new ConfigurationBuilder()
-        //        .SetBasePath(Directory.GetCurrentDirectory())
-        //        .AddJsonFile("../appsettings.json", optional: false, reloadOnChange: true);
-        //    return builder.Build();
-        //}
 
         public static List<Ingredient> GetAllIngredients(string connectionString)
         {

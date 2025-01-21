@@ -6,8 +6,8 @@ using MariaPizzaKassaApp.classes;
 public class Order
 {
     private List<Pizza> Pizzas { get; set; }
-    public Dictionary<Pizza, List<Ingredient>> AddedIngredients { get; private set; }
-    public Dictionary<Pizza, List<Ingredient>> RemovedIngredients { get; private set; }
+    private Dictionary<Pizza, List<Ingredient>> AddedIngredients { get; set; }
+    private Dictionary<Pizza, List<Ingredient>> RemovedIngredients { get; set; }
     public Customer OrderCustomer { get; private set; }
 
     public Order()
@@ -22,8 +22,22 @@ public class Order
         return Pizzas;
     }
 
+    public IReadOnlyDictionary<Pizza, List<Ingredient>> GetAddedIngredients()
+    {
+        return AddedIngredients;
+    }
+
+    public IReadOnlyDictionary<Pizza, List<Ingredient>> GetRemovedIngredients()
+    {
+        return RemovedIngredients;
+    }
+
     public void AddPizza(Pizza pizza, List<Ingredient> addedIngredients, List<Ingredient> removedIngredients)
     {
+        if (pizza == null)
+        {
+            throw new ArgumentException("Pizza cannot be null", nameof(pizza));
+        }
         Pizzas.Add(pizza);
         AddedIngredients[pizza] = addedIngredients;
         RemovedIngredients[pizza] = removedIngredients;
@@ -31,12 +45,17 @@ public class Order
 
     public void RemovePizza(Pizza pizza)
     {
-        if (Pizzas.Contains(pizza))
+        if (pizza == null)
         {
-            Pizzas.Remove(pizza);
-            AddedIngredients.Remove(pizza);
-            RemovedIngredients.Remove(pizza);
+            throw new ArgumentException("Pizza cannot be null", nameof(pizza));
         }
+        if (!Pizzas.Contains(pizza))
+        {
+            throw new ArgumentException("Pizza doesn't exist in the order", nameof(pizza));
+        }
+        Pizzas.Remove(pizza);
+        AddedIngredients.Remove(pizza);
+        RemovedIngredients.Remove(pizza);
     }
 
     public decimal GetTotalPrice()
@@ -47,21 +66,5 @@ public class Order
             totalPrice += pizza.Price + (decimal)pizza.Size;
         }
         return totalPrice;
-    }
-
-    public void AddCustomer(Customer customer)
-    {
-        if (OrderCustomer == null)
-        {
-            OrderCustomer = customer;
-        }
-    }
-
-    public void RemoveCustomer(Customer customer)
-    {
-        if (OrderCustomer == customer)
-        {
-            OrderCustomer = null;
-        }
     }
 }

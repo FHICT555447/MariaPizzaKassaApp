@@ -8,7 +8,7 @@ using System.Windows;
 
 namespace MarioPizzaKassaApp.classes
 {
-    internal class Sender
+    public class Sender
     {
         private OrderStorage _orderStorage;
 
